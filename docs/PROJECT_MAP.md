@@ -1,7 +1,7 @@
 # FeWo Buchhaltung – Projektübersicht
 
 Automatisch generiert mit npm run map
-Stand: 2026-04-11 14:42:22
+Stand: 2026-04-11 15:52:29
 
 --------------------------------------
 MODULE
@@ -51,6 +51,8 @@ MODULE
 - src/modules/bank-ui/lib/applyFewoChange.ts
   → Datei im Bankmodul
 - src/modules/bank-ui/lib/applyKundennrChange.ts
+  → Datei im Bankmodul
+- src/modules/bank-ui/lib/applyMitgliedNameChange.ts
   → Datei im Bankmodul
 - src/modules/bank-ui/lib/applyRemarkChange.ts
   → Datei im Bankmodul
@@ -110,6 +112,8 @@ MODULE
   → Logik zur Zuordnung von Bankbuchungen und Belegen
 - src/modules/bank/types.ts
   → Datei im Bankmodul
+- src/modules/beitraege/.gitkeep
+  → Noch nicht beschrieben
 - src/modules/belegSuche/BelegSuchePanel.tsx
   → Suche über gespeicherte Belege
 - src/modules/belegSuche/SucheTab.tsx
@@ -170,6 +174,8 @@ MODULE
   → Hook/Helfer für Belegdaten und Belegstatus
 - src/modules/belegVerwaltung/utils.ts
   → Allgemeine Hilfsfunktionen des Moduls
+- src/modules/berichte/.gitkeep
+  → Noch nicht beschrieben
 - src/modules/datev/DatevExportPanel.tsx
   → Oberfläche für DATEV-Export
 - src/modules/datev/datevCsv.ts
@@ -230,11 +236,17 @@ MODULE
   → Datei im Exportmodul
 - src/modules/export/stbExportFolders.ts
   → Datei im Exportmodul
+- src/modules/kassen/.gitkeep
+  → Noch nicht beschrieben
 - src/modules/korrektur/KorrekturFilterPanel.tsx
   → Noch nicht beschrieben
 - src/modules/korrektur/KorrekturTab.tsx
   → Massenkorrektur für Konto und Kategorie
 - src/modules/korrektur/KorrekturTabWrapper.tsx
+  → Noch nicht beschrieben
+- src/modules/mitglieder/.gitkeep
+  → Noch nicht beschrieben
+- src/modules/rechenschaft/.gitkeep
   → Noch nicht beschrieben
 - src/modules/settings/SettingsTab.tsx
   → Oberfläche für Einstellungen
@@ -248,6 +260,8 @@ MODULE
   → Datei im Einstellungsmodul
 - src/modules/settings/components/SettingsLocalPanel.tsx
   → Datei im Einstellungsmodul
+- src/modules/spenden/.gitkeep
+  → Noch nicht beschrieben
 
 --------------------------------------
 KOMPONENTEN

@@ -7,6 +7,7 @@ import { loadBankBelege } from "./lib/loadBankBelege"
 import { getFilteredBelege } from "./lib/getFilteredBelege"
 import { applyRemarkChange } from "./lib/applyRemarkChange"
 import { applyKundennrChange } from "./lib/applyKundennrChange"
+import { applyMitgliedNameChange } from "./lib/applyMitgliedNameChange"
 import { applyFewoChange } from "./lib/applyFewoChange"
 import { applyAnzahlungChange } from "./lib/applyAnzahlungChange"
 import { applySplitBetragChange } from "./lib/applySplitBetragChange"
@@ -333,6 +334,12 @@ export default function BankImportPanel({
     function handleKundennrChange(bookingKey: string, kundennr: string) {
         setAssignments((prev) =>
             applyKundennrChange(prev, bookingKey, kundennr)
+        )
+    }
+
+    function handleMitgliedNameChange(bookingKey: string, mitgliedName: string) {
+        setAssignments((prev) =>
+            applyMitgliedNameChange(prev, bookingKey, mitgliedName)
         )
     }
 
@@ -772,6 +779,9 @@ export default function BankImportPanel({
                         }
                         onKundennrChange={(kundennr) =>
                             handleKundennrChange(view.bookingKey, kundennr)
+                        }
+                        onMitgliedNameChange={(mitgliedName) =>
+                            handleMitgliedNameChange(view.bookingKey, mitgliedName)
                         }
                         onFewoChange={(fewo) =>
                             handleFewoChange(view.bookingKey, fewo)

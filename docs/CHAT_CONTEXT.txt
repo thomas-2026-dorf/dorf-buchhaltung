@@ -14,10 +14,14 @@ Git Branch:
 main
 
 Letzter Commit:
-719bb1c Einheiten vereinfacht, Suffix entfernt, Settings-Zwischenstand stabilisiert
+c820971 Bank: Mitgliedsvorschlag nur bei Beitragszahlungen
 
 Git Status:
  M docs/CHAT_CONTEXT.txt
+ M src/App.tsx
+ M src/modules/bank-ui/BankImportPanel.tsx
+ M src/types.ts
+?? src/modules/bank-ui/lib/applyMitgliedNameChange.ts
 
 Ordner im Projekt:
 README.md
@@ -60,7 +64,7 @@ PROJECT_MAP.md wurde aktualisiert.
 # FeWo Buchhaltung – Projektübersicht
 
 Automatisch generiert mit npm run map
-Stand: 2026-04-11 14:42:22
+Stand: 2026-04-11 15:52:29
 
 --------------------------------------
 MODULE
@@ -110,6 +114,8 @@ MODULE
 - src/modules/bank-ui/lib/applyFewoChange.ts
   → Datei im Bankmodul
 - src/modules/bank-ui/lib/applyKundennrChange.ts
+  → Datei im Bankmodul
+- src/modules/bank-ui/lib/applyMitgliedNameChange.ts
   → Datei im Bankmodul
 - src/modules/bank-ui/lib/applyRemarkChange.ts
   → Datei im Bankmodul
@@ -169,6 +175,8 @@ MODULE
   → Logik zur Zuordnung von Bankbuchungen und Belegen
 - src/modules/bank/types.ts
   → Datei im Bankmodul
+- src/modules/beitraege/.gitkeep
+  → Noch nicht beschrieben
 - src/modules/belegSuche/BelegSuchePanel.tsx
   → Suche über gespeicherte Belege
 - src/modules/belegSuche/SucheTab.tsx
@@ -229,6 +237,8 @@ MODULE
   → Hook/Helfer für Belegdaten und Belegstatus
 - src/modules/belegVerwaltung/utils.ts
   → Allgemeine Hilfsfunktionen des Moduls
+- src/modules/berichte/.gitkeep
+  → Noch nicht beschrieben
 - src/modules/datev/DatevExportPanel.tsx
   → Oberfläche für DATEV-Export
 - src/modules/datev/datevCsv.ts
@@ -289,11 +299,17 @@ MODULE
   → Datei im Exportmodul
 - src/modules/export/stbExportFolders.ts
   → Datei im Exportmodul
+- src/modules/kassen/.gitkeep
+  → Noch nicht beschrieben
 - src/modules/korrektur/KorrekturFilterPanel.tsx
   → Noch nicht beschrieben
 - src/modules/korrektur/KorrekturTab.tsx
   → Massenkorrektur für Konto und Kategorie
 - src/modules/korrektur/KorrekturTabWrapper.tsx
+  → Noch nicht beschrieben
+- src/modules/mitglieder/.gitkeep
+  → Noch nicht beschrieben
+- src/modules/rechenschaft/.gitkeep
   → Noch nicht beschrieben
 - src/modules/settings/SettingsTab.tsx
   → Oberfläche für Einstellungen
@@ -307,6 +323,8 @@ MODULE
   → Datei im Einstellungsmodul
 - src/modules/settings/components/SettingsLocalPanel.tsx
   → Datei im Einstellungsmodul
+- src/modules/spenden/.gitkeep
+  → Noch nicht beschrieben
 
 --------------------------------------
 KOMPONENTEN
@@ -402,7 +420,7 @@ Git Branch:
 main
 
 Letzter Commit:
-719bb1c Einheiten vereinfacht, Suffix entfernt, Settings-Zwischenstand stabilisiert
+c820971 Bank: Mitgliedsvorschlag nur bei Beitragszahlungen
 
 Git Status:
 On branch main
@@ -413,6 +431,13 @@ Changes not staged for commit:
   (use "git restore <file>..." to discard changes in working directory)
 	modified:   docs/CHAT_CONTEXT.txt
 	modified:   docs/PROJECT_MAP.md
+	modified:   src/App.tsx
+	modified:   src/modules/bank-ui/BankImportPanel.tsx
+	modified:   src/types.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	src/modules/bank-ui/lib/applyMitgliedNameChange.ts
 
 no changes added to commit (use "git add" and/or "git commit -a")
 
@@ -423,19 +448,19 @@ Build Test:
 
 vite v7.3.1 building client environment for production...
 transforming...
-✓ 387 modules transformed.
+✓ 386 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/index.html                          0.46 kB │ gzip:   0.30 kB
 dist/assets/pdf.worker-9aISQa3R.mjs  1,906.30 kB
 dist/assets/index-StDh0Woi.css           1.35 kB │ gzip:   0.68 kB
-dist/assets/index-CWwIMwAD.js        1,493.21 kB │ gzip: 504.43 kB
+dist/assets/index-DtgX1Ebm.js        1,488.57 kB │ gzip: 503.45 kB
 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.36s
+✓ built in 1.39s
 
 ----------------------------------
 ENDE

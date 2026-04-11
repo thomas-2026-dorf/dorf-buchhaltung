@@ -28,6 +28,7 @@ import SettingsTabWrapper from "./modules/settings/SettingsTabWrapper";
 import { getFewoAuswahlliste } from "./lib/settings/einheiten";
 import { ladeAppSettings } from "./lib/settings/appSettingsStorage";
 import KorrekturTabWrapper from "./modules/korrektur/KorrekturTabWrapper";
+
 import { useTestBetriebStatus } from "./hooks/useTestBetriebStatus";
 import { useBaseFolder } from "./hooks/useBaseFolder";
 import { usePdfRenderEffect } from "./hooks/usePdfRenderEffect";
@@ -448,6 +449,14 @@ export default function App() {
             {activeTab === "Ausgang" && (
               <AusgangTabWrapper baseFolder={baseFolder} year={year} />
             )}
+
+            {activeTab === "Mitglieder" && <PlaceholderTab />}
+
+            {activeTab === "Beiträge" && <PlaceholderTab />}
+
+            {activeTab === "Kassen" && <PlaceholderTab />}
+
+            {activeTab === "Berichte" && <PlaceholderTab />}
 
             {showPlaceholderTab && <PlaceholderTab />}
           </MainCard>

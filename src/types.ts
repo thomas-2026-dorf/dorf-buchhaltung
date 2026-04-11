@@ -8,7 +8,11 @@ export type Tab =
   | "Auswertung"
   | "Suche"
   | "Einstellungen"
-  | "Korrektur";
+  | "Korrektur"
+  | "Mitglieder"
+  | "Beiträge"
+  | "Kassen"
+  | "Berichte";
 
 export type FeWo = {
   id: string;

@@ -85,7 +85,6 @@ export default function BankBookingCard({
     onAssign,
     onRemarkChange,
     onKundennrChange,
-    onFewoChange,
     onAnzahlungChange,
     onBelegFehltChange,
     onRemoveSplitBeleg,
@@ -113,7 +112,6 @@ export default function BankBookingCard({
     const isSaved = !!currentBelegId && currentBelegId === savedBelegId
     const splitAssignments = currentAssignment.splitAssignments || []
     const isBelegFehlt = !!currentAssignment.belegFehlt
-    const currentFewoValue = currentAssignment.fewo || view.fewo || ""
 
     const currentBeleg =
         belege.find((entry) => entry.id === currentBelegId) || null
@@ -725,30 +723,7 @@ export default function BankBookingCard({
                             />
                         </div>
 
-                        <div>
-                            <div style={{ fontSize: 13, color: "#6B7280", marginBottom: 4 }}>
-                                FeWo
-                            </div>
-                            <select
-                                value={currentFewoValue}
-                                onChange={(e) => onFewoChange(e.target.value)}
-                                style={{
-                                    width: "100%",
-                                    padding: "10px 12px",
-                                    border: "1px solid #D1D5DB",
-                                    borderRadius: 8,
-                                    background: "#fff",
-                                    boxSizing: "border-box",
-                                }}
-                            >
-                                <option value="">Bitte wählen</option>
-                                <option value="Tina">Tina</option>
-                                <option value="Harmony">Harmony</option>
-                                <option value="Tinchen">Tinchen</option>
-                                <option value="RS">RS</option>
-                                <option value="Privat">Privat</option>
-                            </select>
-                        </div>
+                        <div />
                     </div>
 
                     {(currentBeleg || splitAssignments.length > 0) && (
@@ -861,9 +836,7 @@ export default function BankBookingCard({
                         }}
                     >
                         <span>Ausgewählte Summe: {zuordnungssumme.toFixed(2)} €</span>
-                        <span>Split-Summe: {splitSumme.toFixed(2)} €</span>
                         <span>Bankbetrag: {booking.betrag.toFixed(2)} €</span>
-                        <span>Fewo: {view.fewo || "-"}</span>
                         <span>Konto: {view.konto || "-"}</span>
                         <span>Lieferant: {view.lieferant || "-"}</span>
                     </div>

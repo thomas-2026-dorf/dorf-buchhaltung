@@ -21,6 +21,19 @@ function extractRechnungsnrFromVerwendungszweck(verwendungszweck?: string) {
     return match?.[1] || ""
 }
 
+function isLikelyMitgliedszahlung(verwendungszweck?: string) {
+    const text = String(verwendungszweck || "").toLowerCase()
+
+    return [
+        "mitglied",
+        "mitgliedsbeitrag",
+        "beitrag",
+        "jahresbeitrag",
+        "verein",
+        "dorfgemeinschaft",
+    ].some((keyword) => text.includes(keyword))
+}
+
 type BookingView = {
     bookingKey: string
     status: string
@@ -120,6 +133,21 @@ export default function BankBookingCard({
 
     const quickSearchName = extractNameFromVerwendungszweck(booking.verwendungszweck)
     const quickSearchRechnungsnr = extractRechnungsnrFromVerwendungszweck(booking.verwendungszweck)
+
+    useEffect(() => {
+        if (!isOpen) return
+        if (currentAssignment.mitgliedName?.trim()) return
+        if (!quickSearchName.trim()) return
+        if (!isLikelyMitgliedszahlung(booking.verwendungszweck)) return
+
+        onMitgliedNameChange(quickSearchName)
+    }, [
+        isOpen,
+        currentAssignment.mitgliedName,
+        quickSearchName,
+        booking.verwendungszweck,
+        onMitgliedNameChange,
+    ])
 
     function applyQuickSearch(field: keyof BookingSearchFields, value: string) {
         if (!value.trim()) return

@@ -8,13 +8,13 @@ FEWO BUCHHALTUNG – PROJEKTSTATUS
 ----------------------------------
 
 Projektordner:
-/Users/thomaskuster/Documents/FeWoBuchhaltung/fewo-buchhaltung
+/Users/thomaskuster/Documents/dorf-buchhaltung
 
 Git Branch:
-fewo-main
+main
 
 Letzter Commit:
-409d099 Settings: Tabs für Lokal/Einheiten/Konten + Konten sortiert + Basisordner-Verbesserung
+719bb1c Einheiten vereinfacht, Suffix entfernt, Settings-Zwischenstand stabilisiert
 
 Git Status:
  M docs/CHAT_CONTEXT.txt
@@ -24,8 +24,8 @@ README.md
 app-settings.json
 dist
 docs
+dorf-buchhaltung.code-workspace
 eslint.config.js
-fewo-buchhaltung.code-workspace
 index.html
 node_modules
 package-lock.json
@@ -60,7 +60,7 @@ PROJECT_MAP.md wurde aktualisiert.
 # FeWo Buchhaltung – Projektübersicht
 
 Automatisch generiert mit npm run map
-Stand: 2026-04-11 07:05:16
+Stand: 2026-04-11 14:42:22
 
 --------------------------------------
 MODULE
@@ -399,14 +399,14 @@ NPM Version:
 11.8.0
 
 Git Branch:
-fewo-main
+main
 
 Letzter Commit:
-409d099 Settings: Tabs für Lokal/Einheiten/Konten + Konten sortiert + Basisordner-Verbesserung
+719bb1c Einheiten vereinfacht, Suffix entfernt, Settings-Zwischenstand stabilisiert
 
 Git Status:
-On branch fewo-main
-Your branch is up to date with 'origin/fewo-main'.
+On branch main
+Your branch is up to date with 'origin/main'.
 
 Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)
@@ -418,24 +418,24 @@ no changes added to commit (use "git add" and/or "git commit -a")
 
 Build Test:
 
-> fewo-buchhaltung@0.0.0 build
+> dorf-buchhaltung@0.0.0 build
 > tsc -b && vite build
 
 vite v7.3.1 building client environment for production...
 transforming...
-✓ 388 modules transformed.
+✓ 387 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/index.html                          0.46 kB │ gzip:   0.30 kB
 dist/assets/pdf.worker-9aISQa3R.mjs  1,906.30 kB
 dist/assets/index-StDh0Woi.css           1.35 kB │ gzip:   0.68 kB
-dist/assets/index-CZum3ywy.js        1,492.46 kB │ gzip: 504.65 kB
+dist/assets/index-CWwIMwAD.js        1,493.21 kB │ gzip: 504.43 kB
 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.40s
+✓ built in 1.36s
 
 ----------------------------------
 ENDE

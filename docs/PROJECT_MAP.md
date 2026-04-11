@@ -1,7 +1,7 @@
 # FeWo Buchhaltung – Projektübersicht
 
 Automatisch generiert mit npm run map
-Stand: 2026-04-11 07:05:16
+Stand: 2026-04-11 14:42:22
 
 --------------------------------------
 MODULE

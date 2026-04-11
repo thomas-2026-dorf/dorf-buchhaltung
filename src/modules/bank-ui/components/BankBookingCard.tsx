@@ -54,6 +54,7 @@ type Props = {
     onAssign: (belegId: string) => void
     onRemarkChange: (bemerkung: string) => void
     onKundennrChange: (kundennr: string) => void
+    onMitgliedNameChange: (mitgliedName: string) => void
     onFewoChange: (fewo: string) => void
     onAnzahlungChange: (istAnzahlung: boolean) => void
     onBelegFehltChange: (belegFehlt: boolean) => void
@@ -85,6 +86,7 @@ export default function BankBookingCard({
     onAssign,
     onRemarkChange,
     onKundennrChange,
+    onMitgliedNameChange,
     onAnzahlungChange,
     onBelegFehltChange,
     onRemoveSplitBeleg,
@@ -723,7 +725,24 @@ export default function BankBookingCard({
                             />
                         </div>
 
-                        <div />
+                        <div>
+                            <div style={{ fontSize: 13, color: "#6B7280", marginBottom: 4 }}>
+                                Mitglied
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="z. B. Thomas Küster"
+                                value={currentAssignment.mitgliedName || ""}
+                                onChange={(e) => onMitgliedNameChange(e.target.value)}
+                                style={{
+                                    width: "100%",
+                                    padding: "10px 12px",
+                                    border: "1px solid #D1D5DB",
+                                    borderRadius: 8,
+                                    boxSizing: "border-box",
+                                }}
+                            />
+                        </div>
                     </div>
 
                     {(currentBeleg || splitAssignments.length > 0) && (
@@ -837,6 +856,7 @@ export default function BankBookingCard({
                     >
                         <span>Ausgewählte Summe: {zuordnungssumme.toFixed(2)} €</span>
                         <span>Bankbetrag: {booking.betrag.toFixed(2)} €</span>
+                        <span>Mitglied: {currentAssignment.mitgliedName || "-"}</span>
                         <span>Konto: {view.konto || "-"}</span>
                         <span>Lieferant: {view.lieferant || "-"}</span>
                     </div>

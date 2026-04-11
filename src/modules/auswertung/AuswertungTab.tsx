@@ -9,7 +9,6 @@ import {
   formatEuro,
 } from "./auswertungUtils";
 import { cardStyle } from "../../design/styles";
-import AuswertungFilterPanel from "./AuswertungFilterPanel";
 
 type Props = {
   baseFolder: string;
@@ -22,13 +21,6 @@ export default function AuswertungTab({ baseFolder, year }: Props) {
     Ausgangsrechnung[]
   >([]);
   const [fehler, setFehler] = useState("");
-  const [auswahl, setAuswahl] = useState<string[]>([
-    "Tina",
-    "Harmony",
-    "Tinchen",
-    "RS",
-    "Privat",
-  ]);
 
   useEffect(() => {
     async function loadData() {
@@ -62,21 +54,6 @@ export default function AuswertungTab({ baseFolder, year }: Props) {
 
   const alleDaten = berechneFewoAuswertungen(ausgangsrechnungen, belege);
 
-  const daten = alleDaten.filter((eintrag) => auswahl.includes(eintrag.fewo));
-
-  const auswahlSumme = daten.reduce(
-    (summe, eintrag) => ({
-      erloese: summe.erloese + eintrag.erloese,
-      ausgaben: summe.ausgaben + eintrag.ausgaben,
-      saldo: summe.saldo + eintrag.saldo,
-    }),
-    {
-      erloese: 0,
-      ausgaben: 0,
-      saldo: 0,
-    }
-  );
-
   const gesamtSumme = alleDaten.reduce(
     (summe, eintrag) => ({
       erloese: summe.erloese + eintrag.erloese,
@@ -90,19 +67,9 @@ export default function AuswertungTab({ baseFolder, year }: Props) {
     }
   );
 
-  function toggleFewo(option: string) {
-    setAuswahl((prev) =>
-      prev.includes(option)
-        ? prev.filter((e) => e !== option)
-        : [...prev, option]
-    );
-  }
-
   return (
     <div style={{ padding: 20, display: "grid", gap: 16 }}>
       <h2 style={{ marginTop: 0, marginBottom: 0 }}>Auswertung</h2>
-
-      <AuswertungFilterPanel auswahl={auswahl} toggleFewo={toggleFewo} />
 
       {fehler ? (
         <div
@@ -161,57 +128,33 @@ export default function AuswertungTab({ baseFolder, year }: Props) {
             </tr>
           </thead>
           <tbody>
-            {daten.map((eintrag) => (
-              <tr key={eintrag.fewo}>
-                <td
-                  style={{
-                    padding: "10px 8px",
-                    borderBottom: "1px solid #eee",
-                  }}
-                >
-                  {eintrag.fewo}
-                </td>
-                <td style={{ padding: "10px 8px", textAlign: "right" }}>
-                  {formatEuro(eintrag.erloese)} €
-                </td>
-                <td style={{ padding: "10px 8px", textAlign: "right" }}>
-                  {formatEuro(eintrag.ausgaben)} €
-                </td>
-                <td
-                  style={{
-                    padding: "10px 8px",
-                    textAlign: "right",
-                    fontWeight: 700,
-                  }}
-                >
-                  {formatEuro(eintrag.saldo)} €
-                </td>
-              </tr>
-            ))}
+            <tr>
+              <td
+                style={{
+                  padding: "10px 8px",
+                  borderBottom: "1px solid #eee",
+                }}
+              >
+                Dorfgemeinschaft Loppersum
+              </td>
+              <td style={{ padding: "10px 8px", textAlign: "right" }}>
+                {formatEuro(gesamtSumme.erloese)} €
+              </td>
+              <td style={{ padding: "10px 8px", textAlign: "right" }}>
+                {formatEuro(gesamtSumme.ausgaben)} €
+              </td>
+              <td
+                style={{
+                  padding: "10px 8px",
+                  textAlign: "right",
+                  fontWeight: 700,
+                }}
+              >
+                {formatEuro(gesamtSumme.saldo)} €
+              </td>
+            </tr>
           </tbody>
         </table>
-
-        <div
-          style={{
-            ...cardStyle,
-            marginTop: 16,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ color: "#6B7280" }}>Saldo Auswahl</div>
-
-          <div
-            style={{
-              fontSize: 22,
-              fontWeight: 700,
-              color: auswahlSumme.saldo >= 0 ? "#166534" : "#B91C1C",
-            }}
-          >
-            {formatEuro(auswahlSumme.saldo)} €
-          </div>
-        </div>
 
         <div
           style={{

@@ -4,7 +4,6 @@ import BelegFormularHeader from "./components/BelegFormularHeader";
 import BelegFormularActions from "./components/BelegFormularActions";
 import BelegFormularBasisfelder from "./components/BelegFormularBasisfelder";
 import BelegFormularZuordnung from "./components/BelegFormularZuordnung";
-import BelegSplitInputs from "./components/BelegSplitInputs";
 
 type Props = {
   lieferant: string;
@@ -60,17 +59,6 @@ export default function BelegFormular(props: Props) {
     setRechnungsnummer,
     lieferantDatevMerken,
     setLieferantDatevMerken,
-    splitMode,
-    splitTina,
-    setSplitTina,
-    splitHarmony,
-    setSplitHarmony,
-    splitTinchen,
-    setSplitTinchen,
-    splitRS,
-    setSplitRS,
-    splitPrivat,
-    setSplitPrivat,
     kategorie,
     setKategorie,
     zahlungsart,
@@ -80,7 +68,6 @@ export default function BelegFormular(props: Props) {
     bankkonten,
     manuellesZahldatum,
     setManuellesZahldatum,
-    erkannterText,
     activeFeWoId,
     setActiveFeWoId,
     fewos,
@@ -88,35 +75,6 @@ export default function BelegFormular(props: Props) {
     onVerschiebenSonstiges,
   } = props;
 
-  const toNumber = (v: string) => parseFloat(v.replace(",", ".")) || 0;
-  const formatEuro = (wert: number) => wert.toFixed(2).replace(".", ",");
-
-  const bruttoGesamt = toNumber(betrag);
-
-  const nettoVerteilt =
-    toNumber(splitTina) +
-    toNumber(splitHarmony) +
-    toNumber(splitTinchen) +
-    toNumber(splitRS) +
-    toNumber(splitPrivat);
-
-  const restZuGesamt = bruttoGesamt - nettoVerteilt;
-  const restGerundet = Math.round(restZuGesamt * 100) / 100;
-
-  const istSecraBeleg =
-    splitMode &&
-    (
-      lieferant.toLowerCase().includes("secra") ||
-      erkannterText.toLowerCase().includes("secra") ||
-      erkannterText.toLowerCase().includes("fewo-channelmanager.de") ||
-      erkannterText.toLowerCase().includes("gastgeber-nr.") ||
-      erkannterText.toLowerCase().includes("provisionsrechnung")
-    );
-
-  const mwstGerundet = restGerundet;
-  const bruttoAusNetto = nettoVerteilt + mwstGerundet;
-  const bruttoDifferenz =
-    Math.round((bruttoGesamt - bruttoAusNetto) * 100) / 100;
 
   const sectionStyle = {
     ...cardStyle,
@@ -189,101 +147,6 @@ export default function BelegFormular(props: Props) {
         />
       </div>
 
-      <div style={sectionStyle}>
-        <div style={titleStyle}>Aufteilung</div>
-
-        <BelegSplitInputs
-          splitTina={splitTina}
-          setSplitTina={setSplitTina}
-          splitHarmony={splitHarmony}
-          setSplitHarmony={setSplitHarmony}
-          splitTinchen={splitTinchen}
-          setSplitTinchen={setSplitTinchen}
-          splitRS={splitRS}
-          setSplitRS={setSplitRS}
-          splitPrivat={splitPrivat}
-          setSplitPrivat={setSplitPrivat}
-          toNumber={toNumber}
-          formatEuro={formatEuro}
-        />
-
-        {istSecraBeleg ? (
-          <div
-            style={{
-              border: "1px solid #e2e8f0",
-              borderRadius: 12,
-              padding: 10,
-              background: "#f8fafc",
-              display: "grid",
-              gap: 6,
-            }}
-          >
-            <div style={{ fontWeight: 700, color: "#1f2937" }}>
-              Netto verteilt: {formatEuro(nettoVerteilt)} €
-            </div>
-
-            <div style={{ fontWeight: 700, color: "#d97706" }}>
-              MwSt: {formatEuro(mwstGerundet)} €
-            </div>
-
-            <div style={{ fontWeight: 700, color: "#1f2937" }}>
-              Brutto gesamt: {formatEuro(bruttoGesamt)} €
-            </div>
-
-            <div
-              style={{
-                fontSize: 13,
-                opacity: 0.9,
-                color:
-                  bruttoDifferenz === 0
-                    ? "green"
-                    : bruttoDifferenz > 0
-                      ? "#d97706"
-                      : "red",
-              }}
-            >
-              {bruttoDifferenz === 0
-                ? "Brutto-Prüfung stimmt"
-                : bruttoDifferenz > 0
-                  ? `Prüfdifferenz: ${formatEuro(bruttoDifferenz)} €`
-                  : `Prüfdifferenz: -${formatEuro(Math.abs(bruttoDifferenz))} €`}
-            </div>
-          </div>
-        ) : (
-          <div
-            style={{
-              border: "1px solid #e2e8f0",
-              borderRadius: 12,
-              padding: 10,
-              background: "#f8fafc",
-              display: "grid",
-              gap: 6,
-            }}
-          >
-            <div style={{ fontWeight: 700, color: "#1f2937" }}>
-              Verteilt: {formatEuro(nettoVerteilt)} €
-            </div>
-            <div
-              style={{
-                fontSize: 13,
-                opacity: 0.9,
-                color:
-                  restGerundet === 0
-                    ? "green"
-                    : restGerundet > 0
-                      ? "#d97706"
-                      : "red",
-              }}
-            >
-              {restGerundet === 0
-                ? "Split stimmt"
-                : restGerundet > 0
-                  ? `Offen: ${formatEuro(restGerundet)} €`
-                  : `Überzogen: ${formatEuro(Math.abs(restGerundet))} €`}
-            </div>
-          </div>
-        )}
-      </div>
 
       <div style={sectionStyle}>
         <div style={titleStyle}>Aktion</div>

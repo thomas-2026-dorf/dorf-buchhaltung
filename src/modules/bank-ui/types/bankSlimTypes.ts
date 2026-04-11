@@ -21,6 +21,8 @@ export type SlimAssignment = {
     belegId?: string
     bemerkung?: string
     kundennr?: string
+    mitgliedId?: string
+    mitgliedName?: string
     fewo?: string
     istAnzahlung?: boolean
     belegFehlt?: boolean
@@ -57,6 +59,8 @@ export type DerivedBookingView = {
     belegId?: string
     bemerkung?: string
     kundennr?: string
+    mitgliedId?: string
+    mitgliedName?: string
     istAnzahlung?: boolean
     splitAssignments?: { belegId: string; betrag?: string }[]
 

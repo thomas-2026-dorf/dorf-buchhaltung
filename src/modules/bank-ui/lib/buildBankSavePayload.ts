@@ -23,6 +23,8 @@ export function buildBankSavePayload({
                     !!value?.belegId ||
                     !!value?.bemerkung?.trim() ||
                     !!value?.kundennr?.trim() ||
+                    !!value?.mitgliedId?.trim() ||
+                    !!value?.mitgliedName?.trim() ||
                     !!value?.fewo?.trim() ||
                     !!value?.istAnzahlung ||
                     value?.belegFehlt === true ||
@@ -34,6 +36,8 @@ export function buildBankSavePayload({
                         belegId: value.belegId || "",
                         bemerkung: value.bemerkung || "",
                         kundennr: value.kundennr || "",
+                        mitgliedId: value.mitgliedId || "",
+                        mitgliedName: value.mitgliedName || "",
                         fewo: value.fewo || "",
                         istAnzahlung: !!value.istAnzahlung,
                         belegFehlt: value.belegFehlt === true,

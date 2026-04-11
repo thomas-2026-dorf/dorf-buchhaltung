@@ -368,6 +368,8 @@ export default function BankImportPanel({
                 !!nextEntry.belegId ||
                 !!nextEntry.bemerkung?.trim() ||
                 !!nextEntry.kundennr?.trim() ||
+                !!nextEntry.mitgliedId?.trim() ||
+                !!nextEntry.mitgliedName?.trim() ||
                 !!nextEntry.fewo?.trim() ||
                 nextEntry.istAnzahlung === true ||
                 nextEntry.belegFehlt === true ||

@@ -11,10 +11,14 @@ type Props = {
 
 const NAV_ITEMS: Tab[] = [
   "Belege",
+  "Kassen",
   "Bank",
-  "Export",
+  "Berichte",
   "Auswertung",
   "Suche",
+  "Mitglieder",
+  "Beiträge",
+  "Export",
   "Einstellungen",
   "Korrektur",
 ];

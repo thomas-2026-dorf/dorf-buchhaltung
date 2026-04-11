@@ -3,7 +3,6 @@ export type Einheit = {
     name: string;
     typ?: string;
     aktiv: boolean;
-    kontoSuffix: string;
 };
 
 export type Konto = {
@@ -36,11 +35,11 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
         appName: "Dorf Buchhaltung",
     },
     einheiten: [
-        { id: "tina", name: "Tina", typ: "objekt", aktiv: true, kontoSuffix: "01" },
-        { id: "harmony", name: "Harmony", typ: "objekt", aktiv: true, kontoSuffix: "02" },
-        { id: "tinchen", name: "Tinchen", typ: "objekt", aktiv: true, kontoSuffix: "03" },
-        { id: "rs", name: "RS", typ: "bereich", aktiv: true, kontoSuffix: "04" },
-        { id: "privat", name: "Privat", typ: "bereich", aktiv: true, kontoSuffix: "05" },
+        { id: "tina", name: "Tina", typ: "objekt", aktiv: true },
+        { id: "harmony", name: "Harmony", typ: "objekt", aktiv: true },
+        { id: "tinchen", name: "Tinchen", typ: "objekt", aktiv: true },
+        { id: "rs", name: "RS", typ: "bereich", aktiv: true },
+        { id: "privat", name: "Privat", typ: "bereich", aktiv: true },
     ],
     konten: [
         { id: "8100", nummer: "8100", name: "Erlöse", typ: "erloes" },

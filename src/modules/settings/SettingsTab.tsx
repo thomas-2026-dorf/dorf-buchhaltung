@@ -149,17 +149,6 @@ export default function SettingsTab({
         }));
     }
 
-    function handleEinheitKontoSuffixChange(id: string, value: string) {
-        const bereinigt = value.replace(/\D/g, "").slice(0, 2);
-
-        setAppSettings((prev) => ({
-            ...prev,
-            einheiten: prev.einheiten.map((einheit) =>
-                einheit.id === id ? { ...einheit, kontoSuffix: bereinigt } : einheit
-            ),
-        }));
-    }
-
     function handleNeueEinheit() {
         const nummer = appSettings.einheiten.length + 1;
 
@@ -174,7 +163,7 @@ export default function SettingsTab({
                     typ: "sonstige",
                     aktiv: true,
                     steuerExport: true,
-                    kontoSuffix: "00",
+
                 },
             ],
         }));
@@ -391,7 +380,6 @@ export default function SettingsTab({
                     onNeueEinheit={handleNeueEinheit}
                     onSpeichernEinheiten={handleSpeichernEinheiten}
                     onEinheitNameChange={handleEinheitNameChange}
-                    onEinheitKontoSuffixChange={handleEinheitKontoSuffixChange}
                     onEinheitLoeschen={handleEinheitLoeschen}
                 />
             )}

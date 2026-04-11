@@ -7,7 +7,6 @@ type Einheit = {
   typ: string;
   aktiv: boolean;
   steuerExport: boolean;
-  kontoSuffix?: string;
 };
 
 type Props = {
@@ -15,7 +14,6 @@ type Props = {
   onNeueEinheit: () => void;
   onSpeichernEinheiten: () => void;
   onEinheitNameChange: (id: string, value: string) => void;
-  onEinheitKontoSuffixChange: (id: string, value: string) => void;
   onEinheitLoeschen: (id: string) => void;
 };
 
@@ -25,7 +23,6 @@ export default function SettingsEinheitenPanel(props: Props) {
     onNeueEinheit,
     onSpeichernEinheiten,
     onEinheitNameChange,
-    onEinheitKontoSuffixChange,
     onEinheitLoeschen,
   } = props;
 
@@ -90,8 +87,7 @@ export default function SettingsEinheitenPanel(props: Props) {
             key={einheit.id}
             style={{
               display: "grid",
-              gridTemplateColumns:
-                "minmax(220px, 1.2fr) minmax(100px, 120px) minmax(120px, 160px) minmax(120px, 140px)",
+              gridTemplateColumns: "minmax(220px, 1fr) 140px",
               gap: 12,
               padding: "12px",
               border: "1px solid #e5e7eb",
@@ -120,27 +116,6 @@ export default function SettingsEinheitenPanel(props: Props) {
                 ID: {einheit.id}
                 {einheit.typ ? ` • Typ: ${einheit.typ}` : ""}
               </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
-                Suffix
-              </div>
-              <input
-                type="text"
-                value={einheit.kontoSuffix ?? ""}
-                onChange={(e) =>
-                  onEinheitKontoSuffixChange(einheit.id, e.target.value)
-                }
-                placeholder="01"
-                style={{
-                  width: "100%",
-                  padding: "10px 12px",
-                  borderRadius: 8,
-                  border: "1px solid #d0d7de",
-                  boxSizing: "border-box",
-                }}
-              />
             </div>
 
             <div>

@@ -1,7 +1,6 @@
 type EinheitOption = {
   id: string;
   name: string;
-  kontoSuffix: string;
 };
 
 type Props = {
@@ -9,16 +8,13 @@ type Props = {
   setJahr: (value: string) => void;
   lieferantFilter: string;
   setLieferantFilter: (value: string) => void;
-  einheitFilter: string;
-  setEinheitFilter: (value: string) => void;
-  einheiten: EinheitOption[];
   basisKonto: string;
   setBasisKonto: (value: string) => void;
-  kontoSuffix: string;
+  einheitId: string;
+  setEinheitId: (value: string) => void;
+  einheiten: EinheitOption[];
   endKonto: string;
-  handleKontoAnwenden: () => void;
-  loading: boolean;
-  saving: boolean;
+  status: string;
   gefiltertAnzahl: number;
 };
 
@@ -28,82 +24,162 @@ export default function KorrekturFilterPanel(props: Props) {
     setJahr,
     lieferantFilter,
     setLieferantFilter,
-    einheitFilter,
-    setEinheitFilter,
-    einheiten,
     basisKonto,
     setBasisKonto,
-    kontoSuffix,
+    einheitId,
+    setEinheitId,
+    einheiten,
     endKonto,
-    handleKontoAnwenden,
-    loading,
-    saving,
+    status,
     gefiltertAnzahl,
   } = props;
 
   return (
-    <div style={{ display: "grid", gap: 12, maxWidth: 560 }}>
+    <div
+      style={{
+        display: "grid",
+        gap: 12,
+        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        marginBottom: 16,
+      }}
+    >
       <div>
-        <label>Jahr</label>
-        <select value={jahr} onChange={(e) => setJahr(e.target.value)}>
-          <option value="2025">2025</option>
-          <option value="2026">2026</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Lieferant (z. B. Vodafone)</label>
+        <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
+          Jahr
+        </div>
         <input
-          value={lieferantFilter}
-          onChange={(e) => setLieferantFilter(e.target.value)}
+          type="text"
+          value={jahr}
+          onChange={(e) => setJahr(e.target.value)}
+          placeholder="z. B. 2026"
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: "1px solid #d0d7de",
+            boxSizing: "border-box",
+          }}
         />
       </div>
 
       <div>
-        <label>Einheit</label>
+        <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
+          Lieferant
+        </div>
+        <input
+          type="text"
+          value={lieferantFilter}
+          onChange={(e) => setLieferantFilter(e.target.value)}
+          placeholder="Lieferant filtern"
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: "1px solid #d0d7de",
+            boxSizing: "border-box",
+          }}
+        />
+      </div>
+
+      <div>
+        <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
+          Basis-Konto
+        </div>
+        <input
+          type="text"
+          value={basisKonto}
+          onChange={(e) => setBasisKonto(e.target.value)}
+          placeholder="z. B. 8100"
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: "1px solid #d0d7de",
+            boxSizing: "border-box",
+          }}
+        />
+      </div>
+
+      <div>
+        <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
+          Einheit
+        </div>
         <select
-          value={einheitFilter}
-          onChange={(e) => setEinheitFilter(e.target.value)}
+          value={einheitId}
+          onChange={(e) => setEinheitId(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: "1px solid #d0d7de",
+            boxSizing: "border-box",
+            background: "#fff",
+          }}
         >
-          <option value="">Bitte Einheit wählen</option>
+          <option value="">Bitte wählen</option>
           {einheiten.map((einheit) => (
-            <option key={einheit.id} value={einheit.name}>
-              {einheit.name} ({einheit.kontoSuffix})
+            <option key={einheit.id} value={einheit.id}>
+              {einheit.name}
             </option>
           ))}
         </select>
       </div>
 
       <div>
-        <label>DATEV-Basiskonto (4-stellig)</label>
+        <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
+          Ziel-Konto
+        </div>
         <input
-          value={basisKonto}
-          onChange={(e) =>
-            setBasisKonto(e.target.value.replace(/\D/g, "").slice(0, 4))
-          }
-          placeholder="z. B. 4320"
+          type="text"
+          value={endKonto}
+          readOnly
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: "1px solid #d0d7de",
+            boxSizing: "border-box",
+            background: "#F9FAFB",
+          }}
         />
       </div>
 
       <div>
-        <label>Suffix aus Einheit</label>
-        <input value={kontoSuffix} readOnly />
+        <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
+          Treffer
+        </div>
+        <input
+          type="text"
+          value={String(gefiltertAnzahl)}
+          readOnly
+          style={{
+            width: "100%",
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: "1px solid #d0d7de",
+            boxSizing: "border-box",
+            background: "#F9FAFB",
+          }}
+        />
       </div>
 
-      <div>
-        <label>Errechnetes Endkonto</label>
-        <input value={endKonto} readOnly />
+      <div style={{ gridColumn: "1 / -1" }}>
+        <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
+          Status
+        </div>
+        <div
+          style={{
+            minHeight: 20,
+            padding: "10px 12px",
+            borderRadius: 8,
+            border: "1px solid #E5E7EB",
+            background: "#F9FAFB",
+            color: "#374151",
+          }}
+        >
+          {status || "—"}
+        </div>
       </div>
-
-      <button
-        type="button"
-        onClick={handleKontoAnwenden}
-        disabled={
-          loading || saving || gefiltertAnzahl === 0 || !einheitFilter || !endKonto
-        }
-      >
-        {saving ? "Speichert..." : "Endkonto auf gefundene Belege anwenden"}
-      </button>
     </div>
   );
 }

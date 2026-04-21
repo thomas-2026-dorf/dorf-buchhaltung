@@ -14,14 +14,10 @@ Git Branch:
 main
 
 Letzter Commit:
-c820971 Bank: Mitgliedsvorschlag nur bei Beitragszahlungen
+1bcb002 Bank: Mitgliedsvorschlag nur bei Beitragszahlungen"
 
 Git Status:
  M docs/CHAT_CONTEXT.txt
- M src/App.tsx
- M src/modules/bank-ui/BankImportPanel.tsx
- M src/types.ts
-?? src/modules/bank-ui/lib/applyMitgliedNameChange.ts
 
 Ordner im Projekt:
 README.md
@@ -64,7 +60,7 @@ PROJECT_MAP.md wurde aktualisiert.
 # FeWo Buchhaltung – Projektübersicht
 
 Automatisch generiert mit npm run map
-Stand: 2026-04-11 15:52:29
+Stand: 2026-04-12 05:17:22
 
 --------------------------------------
 MODULE
@@ -420,7 +416,7 @@ Git Branch:
 main
 
 Letzter Commit:
-c820971 Bank: Mitgliedsvorschlag nur bei Beitragszahlungen
+1bcb002 Bank: Mitgliedsvorschlag nur bei Beitragszahlungen"
 
 Git Status:
 On branch main
@@ -431,13 +427,6 @@ Changes not staged for commit:
   (use "git restore <file>..." to discard changes in working directory)
 	modified:   docs/CHAT_CONTEXT.txt
 	modified:   docs/PROJECT_MAP.md
-	modified:   src/App.tsx
-	modified:   src/modules/bank-ui/BankImportPanel.tsx
-	modified:   src/types.ts
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	src/modules/bank-ui/lib/applyMitgliedNameChange.ts
 
 no changes added to commit (use "git add" and/or "git commit -a")
 
@@ -460,7 +449,7 @@ dist/assets/index-DtgX1Ebm.js        1,488.57 kB │ gzip: 503.45 kB
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.39s
+✓ built in 1.37s
 
 ----------------------------------
 ENDE

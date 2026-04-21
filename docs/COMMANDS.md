@@ -14,6 +14,15 @@ CHAT START
 
 npm run cline
 
+#cline text
+ Ich möchte den nächsten kleinen Schritt vorbereiten.
+
+Bitte prüfe nur die bestehende Struktur und nenne mir:
+- die zuständigen Dateien
+- den sinnvollsten nächsten kleinen Schritt
+
+Noch nichts ändern.
+
 npm run status
 
 npm run map

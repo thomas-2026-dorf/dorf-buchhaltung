@@ -12,6 +12,8 @@ npm run tauri dev
 CHAT START
 --------------------------------------
 
+npm run cline
+
 npm run status
 
 npm run map

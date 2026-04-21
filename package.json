@@ -12,7 +12,8 @@
     "status": "bash scripts/status-report.sh",
     "map": "bash scripts/generate-project-map.sh",
     "debug": "bash scripts/debug-report.sh",
-    "context": "bash scripts/context-report.sh"
+    "context": "bash scripts/context-report.sh",
+    "cline": "bash scripts/cline-start.sh"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.10.1",

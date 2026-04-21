@@ -14,6 +14,14 @@ else
 fi
 
 echo ""
+echo "----- FACHKONZEPT -----"
+if [ -f docs/DORF_BUCHHALTUNG_KONZEPT.txt ]; then
+  cat docs/DORF_BUCHHALTUNG_KONZEPT.txt
+else
+  echo "Kein DORF_BUCHHALTUNG_KONZEPT.txt gefunden"
+fi
+
+echo ""
 echo "----- START PROMPT -----"
 if [ -f cline-start-prompt.txt ]; then
   cat cline-start-prompt.txt

@@ -1,7 +1,7 @@
 # FeWo Buchhaltung – Projektübersicht
 
 Automatisch generiert mit npm run map
-Stand: 2026-04-12 05:17:22
+Stand: 2026-04-21 18:57:58
 
 --------------------------------------
 MODULE
@@ -330,6 +330,8 @@ LIB / HELFER
 --------------------------------------
 SCRIPTS
 --------------------------------------
+- scripts/cline-start.sh
+  → Noch nicht beschrieben
 - scripts/context-report.sh
   → Noch nicht beschrieben
 - scripts/debug-report.sh

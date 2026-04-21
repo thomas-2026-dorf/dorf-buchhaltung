@@ -1,0 +1,64 @@
+----------------------------------
+DORF-BUCHHALTUNG – FACHKONZEPT
+----------------------------------
+
+===== GRUNDREGELN =====
+
+- Das Programm ist für den Kassierer ausgelegt.
+- Es gibt keinen Mehrbenutzerbetrieb.
+- Der Fokus liegt auf einfacher, sicherer Bedienung.
+
+===== KASSENLOGIK =====
+
+- Es müssen zwei Kassen geführt werden:
+  - Bankkonto
+  - Barkasse
+
+- Jede Einnahme und Ausgabe MUSS immer genau einer Kasse zugeordnet sein.
+- Es darf keine Buchung ohne Kassenzuordnung geben.
+
+===== BUCHUNGEN =====
+
+Jede Buchung enthält mindestens:
+- Datum
+- Betrag
+- Einnahme oder Ausgabe
+- Kategorie
+- Kasse (Bank oder Barkasse)
+- optionale Notiz
+- optionaler Belegbezug
+
+===== JAHRESLOGIK =====
+
+- Für jedes Jahr wird eine eigene Auswertung geführt.
+- Der Endbestand eines Jahres wird automatisch als Anfangsbestand des Folgejahres übernommen.
+- Der Anschlussbetrag des Vorjahres darf nicht manuell verändert werden.
+
+===== RECHENSCHAFTSBERICHT =====
+
+- Das System muss einen Rechenschaftsbericht erzeugen können.
+- Der Bericht enthält:
+  - Anfangsbestand
+  - Summe Einnahmen
+  - Summe Ausgaben
+  - Endbestand
+  - getrennte Darstellung für:
+    - Bankkonto
+    - Barkasse
+    - Gesamt
+
+- Der Bericht muss so aufgebaut sein, dass folgende Personen unterschreiben können:
+  - Kassierer
+  - Revisoren
+  - Vorsitzender
+
+===== WICHTIGE REGELN =====
+
+- Keine falschen Summen zulassen
+- Keine Buchung ohne Kasse
+- Jahresübergang muss korrekt funktionieren
+- Änderungen an dieser Logik nur sehr vorsichtig durchführen
+
+----------------------------------
+ENDE
+----------------------------------

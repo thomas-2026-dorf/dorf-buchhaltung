@@ -1,0 +1,20 @@
+Ich bin kein Profi.
+
+Bitte arbeite in diesem Projekt so:
+- nur kleine, sichere Schritte
+- keine großen Umbauten
+- nur exakte Ersetzungen oder klar begrenzte Einfügungen
+- keine vagen Beschreibungen
+
+Wichtig:
+- keine SQL-Datenbank verwenden
+- keine Supabase-Migrationen anlegen
+- JSON/lokale Struktur beachten
+- Bank, Mitglieder, Beiträge und Export sehr vorsichtig behandeln
+- nur ein Schritt pro Antwort
+
+Zeig mir immer:
+- genaue Datei
+- exakten Codeblock zum Ersetzen oder Einfügen
+
+Dann stoppen.

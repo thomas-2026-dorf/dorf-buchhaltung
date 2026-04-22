@@ -1,0 +1,73 @@
+PROJEKT: Dorf-Buchhaltung (Vereins-Kassenbuch)
+
+Ziel der App:
+
+* Einfache Buchhaltung für einen Verein (Dorfgemeinschaft)
+* Verwaltung von Bankkonto und Barkasse
+* Jede Buchung gehört immer zu einer Kasse
+* Rechenschaftsbericht für Vorstand + Prüfer
+* Vorjahres-Endbestand wird automatisch übernommen
+
+Arbeitsweise:
+
+* Ich bin kein Profi → bitte einfache, sichere Lösungen
+* Wir arbeiten in sinnvollen Blöcken (nicht zu klein, nicht zu groß)
+* Ich gebe dir Ziel + Datei(en)
+* Du lieferst fertige Lösungen (keine vielen Snippets)
+
+WICHTIG:
+
+* Änderungen nur als komplette Datei ODER klarer ALT → NEU Block
+* Keine ungenauen Anweisungen („füge irgendwo ein“)
+* Keine großen unkontrollierten Umbauten über mehrere Dateien
+* Bestehende Funktion darf nicht kaputt gehen
+
+Ablauf:
+
+1. Ich beschreibe die gewünschte Änderung
+2. Ich gebe dir die betroffenen Dateien
+3. Du lieferst eine fertige Lösung
+4. Ich füge mit Cline ein und teste lokal
+5. Wenn alles läuft → Commit + Backup
+6. Wenn nicht → gezielte Korrektur durch dich
+
+Technische Grundregeln:
+
+* Lokale Entwicklung (kein Online-Mischbetrieb während Umbau)
+* Daten zuerst einfach halten (localStorage oder einfache Struktur)
+* Erweiterungen erst, wenn Basis stabil ist
+* Keine unnötigen Libraries
+
+Fachliche Grundregeln:
+
+* Jede Buchung hat:
+
+  * Betrag
+  * Typ (Einnahme / Ausgabe)
+  * Kasse (Bank / Barkasse)
+  * Titel / Beschreibung
+  * Datum
+
+* Kontostände:
+
+  * Bank und Barkasse getrennt
+  * Gesamtübersicht möglich
+
+* Ziel später:
+
+  * Rechenschaftsbericht
+  * Export / Druck
+  * Mitglieder + Beiträge
+
+Aktueller Fokus:
+
+1. Kassenmodul stabil aufbauen
+2. Einnahmen / Ausgaben sauber erfassen
+3. Bank und Barkasse sauber trennen
+4. Kontostände korrekt berechnen
+
+Ziel:
+
+* stabile Entwicklung ohne Chaos
+* jederzeit funktionierende Version
+* einfache Bedienung für Nicht-Techniker

@@ -7,6 +7,10 @@ import {
 import { fuegeBelegZuJahresdateiHinzu } from "../../lib/storage";
 import { saveLieferantDatevKonto } from "../../lib/settings/localSettings";
 import { parseEuro } from "./utils";
+import {
+  erstelleBarbelegAusgabe,
+  fuegeKassenEintragHinzu,
+} from "../kassen/kassenStorage";
 
 function cleanFilenamePart(input: string): string {
   return input
@@ -179,6 +183,24 @@ export async function saveBelegHandler({
   try {
     await fuegeBelegZuJahresdateiHinzu(baseFolder, year, beleg);
 
+    if (zahlungsart === "bar") {
+      const barkassenEintrag = erstelleBarbelegAusgabe({
+        datum: belegDatum,
+        betrag,
+        titel: `${neueId} | ${lieferant.trim()}`,
+        beschreibung: [
+          rechnungsnummer ? `RG: ${rechnungsnummer}` : "",
+          notiz.trim() ? notiz.trim() : "",
+        ]
+          .filter(Boolean)
+          .join(" | "),
+      });
+
+      if (barkassenEintrag) {
+        fuegeKassenEintragHinzu(barkassenEintrag);
+      }
+    }
+
     if (lieferantDatevMerken && lieferant.trim() && kategorie.trim()) {
       saveLieferantDatevKonto(lieferant.trim(), kategorie.trim());
       console.log("DATEV-Konto gemerkt:", lieferant.trim(), kategorie.trim());
@@ -187,6 +209,7 @@ export async function saveBelegHandler({
     alert("Jahresdatei-Speichern fehlgeschlagen: " + String(err));
     return;
   }
+
 
   invoke("move_to_eingang", {
     baseFolder,
@@ -198,8 +221,8 @@ export async function saveBelegHandler({
     .then(() => {
       const infoText = isSplitActive
         ? `Beleg gespeichert: ${neueId}\nBrutto: ${formatEuro(
-            betragBrutto
-          )} €\nNetto gesamt (Split): ${formatEuro(splitSummeNetto)} €`
+          betragBrutto
+        )} €\nNetto gesamt (Split): ${formatEuro(splitSummeNetto)} €`
         : `Beleg gespeichert: ${neueId}`;
 
       alert(infoText);

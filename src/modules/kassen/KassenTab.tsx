@@ -3,79 +3,18 @@ import {
     erstelleUmbuchung,
     type UmbuchungsRichtung,
 } from "./kassenUmbuchungen";
-
-type BuchungsTyp = "einnahme" | "ausgabe";
-type KassenArt = "bank" | "barkasse";
-
-type KassenEintrag = {
-    id: string;
-    datum: string;
-    typ: BuchungsTyp;
-    kassenArt: KassenArt;
-    titel: string;
-    beschreibung: string;
-    betrag: string;
-    barbelegVorhanden: boolean;
-};
-
-const STORAGE_KEY = "dorfbuchhaltung-kassen-eintraege-v1";
+import {
+    ladeKassenEintraege,
+    speichereKassenEintraege,
+    type BuchungsTyp,
+    type KassenEintrag,
+} from "./kassenStorage";
 
 export default function KassenTab() {
-    const ladeGespeicherteEintraege = (): KassenEintrag[] => {
-        try {
-            const gespeichert = localStorage.getItem(STORAGE_KEY);
-            if (!gespeichert) return [];
-
-            const daten = JSON.parse(gespeichert);
-            if (!Array.isArray(daten)) return [];
-
-            return daten
-                .filter((eintrag): eintrag is Partial<KassenEintrag> => {
-                    return !!eintrag && typeof eintrag === "object";
-                })
-                .map((eintrag): KassenEintrag => {
-                    const typ: BuchungsTyp =
-                        eintrag.typ === "ausgabe" ? "ausgabe" : "einnahme";
-
-                    const kassenArt: KassenArt =
-                        eintrag.kassenArt === "bank" ? "bank" : "barkasse";
-
-                    return {
-                        id:
-                            typeof eintrag.id === "string"
-                                ? eintrag.id
-                                : Date.now().toString() + Math.random().toString(16).slice(2),
-                        datum:
-                            typeof eintrag.datum === "string" && eintrag.datum
-                                ? eintrag.datum
-                                : new Date().toISOString().slice(0, 10),
-                        typ,
-                        kassenArt,
-                        titel:
-                            typeof eintrag.titel === "string" ? eintrag.titel : "",
-                        beschreibung:
-                            typeof eintrag.beschreibung === "string"
-                                ? eintrag.beschreibung
-                                : "",
-                        betrag:
-                            typeof eintrag.betrag === "string" ? eintrag.betrag : "0,00 €",
-                        barbelegVorhanden:
-                            typeof eintrag.barbelegVorhanden === "boolean"
-                                ? eintrag.barbelegVorhanden
-                                : false,
-                    };
-                })
-                .filter((eintrag) => eintrag.titel.trim() !== "");
-        } catch (error) {
-            console.error("Fehler beim Laden der Kassen-Einträge:", error);
-            return [];
-        }
-    };
-
     const [neuerTitel, setNeuerTitel] = useState("");
     const [neueBeschreibung, setNeueBeschreibung] = useState("");
     const [kassenEintraege, setKassenEintraege] = useState<KassenEintrag[]>(() =>
-        ladeGespeicherteEintraege()
+        ladeKassenEintraege()
     );
     const [neuerTyp, setNeuerTyp] = useState<BuchungsTyp>("einnahme");
     const [neuerBetrag, setNeuerBetrag] = useState("");
@@ -92,11 +31,7 @@ export default function KassenTab() {
         useState<UmbuchungsRichtung>("bank-zu-barkasse");
 
     useEffect(() => {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(kassenEintraege));
-        } catch (error) {
-            console.error("Fehler beim Speichern der Kassen-Einträge:", error);
-        }
+        speichereKassenEintraege(kassenEintraege);
     }, [kassenEintraege]);
 
     const parseBetrag = (wert: unknown) => {
@@ -291,7 +226,6 @@ export default function KassenTab() {
                         Löschen
                     </button>
                 </div>
-
             </div>
         );
     };
@@ -313,6 +247,12 @@ export default function KassenTab() {
             >
                 <div style={{ fontSize: 18, fontWeight: 700 }}>
                     Barkasse: {formatEuro(barkassenKontostand)}
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>
+                    Bank: {formatEuro(bankKontostand)}
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>
+                    Gesamt: {formatEuro(kontostand)}
                 </div>
             </div>
 
@@ -413,6 +353,7 @@ export default function KassenTab() {
                         />
                         Barbeleg vorhanden
                     </label>
+
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                         <button onClick={eintragHinzufuegen}>+ Buchung hinzufügen</button>
                         <button type="button" onClick={formularZuruecksetzen}>
@@ -451,12 +392,8 @@ export default function KassenTab() {
                                 setUmbuchungsRichtung(e.target.value as UmbuchungsRichtung)
                             }
                         >
-                            <option value="bank-zu-barkasse">
-                                Bank → Barkasse
-                            </option>
-                            <option value="barkasse-zu-bank">
-                                Barkasse → Bank
-                            </option>
+                            <option value="bank-zu-barkasse">Bank → Barkasse</option>
+                            <option value="barkasse-zu-bank">Barkasse → Bank</option>
                         </select>
                     </div>
 
@@ -512,6 +449,15 @@ export default function KassenTab() {
                     <p>Keine Barkassen-Buchungen vorhanden.</p>
                 ) : (
                     barkassenEintraege.map(renderEintrag)
+                )}
+            </div>
+
+            <div style={{ marginTop: 32 }}>
+                <h3>Nur Bank</h3>
+                {bankEintraege.length === 0 ? (
+                    <p>Keine Bank-Buchungen vorhanden.</p>
+                ) : (
+                    bankEintraege.map(renderEintrag)
                 )}
             </div>
         </div>

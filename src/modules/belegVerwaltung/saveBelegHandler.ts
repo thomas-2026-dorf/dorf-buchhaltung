@@ -194,6 +194,8 @@ export async function saveBelegHandler({
         ]
           .filter(Boolean)
           .join(" | "),
+        belegId: neueId,
+        belegPfad: beleg.pfad,
       });
 
       if (barkassenEintrag) {

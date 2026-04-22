@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import {
     erstelleUmbuchung,
     type UmbuchungsRichtung,
@@ -10,7 +11,12 @@ import {
     type KassenEintrag,
 } from "./kassenStorage";
 
-export default function KassenTab() {
+type Props = {
+    baseFolder: string;
+    year: string;
+};
+
+export default function KassenTab({ baseFolder, year }: Props) {
     const [neuerTitel, setNeuerTitel] = useState("");
     const [neueBeschreibung, setNeueBeschreibung] = useState("");
     const [kassenEintraege, setKassenEintraege] = useState<KassenEintrag[]>(() =>
@@ -149,6 +155,18 @@ export default function KassenTab() {
         umbuchungZuruecksetzen();
     };
 
+    const belegOeffnen = async (relpath: string) => {
+        try {
+            await invoke("pdf_im_system_oeffnen", {
+                baseFolder,
+                year,
+                relpath,
+            });
+        } catch (error) {
+            alert("Beleg konnte nicht geöffnet werden: " + String(error));
+        }
+    };
+
     const renderEintrag = (eintrag: KassenEintrag) => {
         const istEinnahme = eintrag.typ === "einnahme";
         const istBarkasse = eintrag.kassenArt === "barkasse";
@@ -211,7 +229,23 @@ export default function KassenTab() {
                     </div>
                 ) : null}
 
-                <div style={{ marginTop: 10 }}>
+                <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {eintrag.belegPfad ? (
+                        <button
+                            onClick={() => belegOeffnen(eintrag.belegPfad!)}
+                            style={{
+                                background: "#dbeafe",
+                                border: "1px solid #3b82f6",
+                                color: "#1d4ed8",
+                                padding: "4px 8px",
+                                borderRadius: 6,
+                                cursor: "pointer",
+                            }}
+                        >
+                            Beleg öffnen
+                        </button>
+                    ) : null}
+
                     <button
                         onClick={() => eintragLoeschen(eintrag.id)}
                         style={{

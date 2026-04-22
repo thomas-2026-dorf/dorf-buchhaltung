@@ -10,6 +10,8 @@ export type KassenEintrag = {
     beschreibung: string;
     betrag: string;
     barbelegVorhanden: boolean;
+    belegId?: string;
+    belegPfad?: string;
 };
 
 export const KASSEN_STORAGE_KEY = "dorfbuchhaltung-kassen-eintraege-v1";
@@ -67,6 +69,12 @@ export function ladeKassenEintraege(): KassenEintrag[] {
                         typeof eintrag.barbelegVorhanden === "boolean"
                             ? eintrag.barbelegVorhanden
                             : false,
+                    belegId:
+                        typeof eintrag.belegId === "string" ? eintrag.belegId : undefined,
+                    belegPfad:
+                        typeof eintrag.belegPfad === "string"
+                            ? eintrag.belegPfad
+                            : undefined,
                 };
             })
             .filter((eintrag) => eintrag.titel.trim() !== "");
@@ -95,6 +103,8 @@ export function erstelleBarbelegAusgabe(params: {
     betrag: string;
     titel: string;
     beschreibung?: string;
+    belegId?: string;
+    belegPfad?: string;
 }): KassenEintrag | null {
     const betragAlsZahl = parseBetrag(params.betrag);
     if (betragAlsZahl <= 0) return null;
@@ -108,5 +118,7 @@ export function erstelleBarbelegAusgabe(params: {
         beschreibung: (params.beschreibung || "").trim(),
         betrag: formatEuro(betragAlsZahl),
         barbelegVorhanden: true,
+        belegId: params.belegId,
+        belegPfad: params.belegPfad,
     };
 }

@@ -455,7 +455,9 @@ export default function App() {
 
             {activeTab === "Beiträge" && <PlaceholderTab />}
 
-            {activeTab === "Kassen" && <KassenTab />}
+            {activeTab === "Kassen" && (
+              <KassenTab baseFolder={baseFolder} year={year} />
+            )}
 
             {activeTab === "Berichte" && <PlaceholderTab />}
 

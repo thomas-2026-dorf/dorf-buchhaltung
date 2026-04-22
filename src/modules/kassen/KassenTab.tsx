@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+    erstelleUmbuchung,
+    type UmbuchungsRichtung,
+} from "./kassenUmbuchungen";
 
 type BuchungsTyp = "einnahme" | "ausgabe";
 type KassenArt = "bank" | "barkasse";
@@ -74,12 +78,18 @@ export default function KassenTab() {
         ladeGespeicherteEintraege()
     );
     const [neuerTyp, setNeuerTyp] = useState<BuchungsTyp>("einnahme");
-    const [neueKassenArt, setNeueKassenArt] = useState<KassenArt>("barkasse");
     const [neuerBetrag, setNeuerBetrag] = useState("");
     const [neuesDatum, setNeuesDatum] = useState(() => {
         return new Date().toISOString().slice(0, 10);
     });
     const [neuerBarbelegVorhanden, setNeuerBarbelegVorhanden] = useState(true);
+
+    const [umbuchungsDatum, setUmbuchungsDatum] = useState(() => {
+        return new Date().toISOString().slice(0, 10);
+    });
+    const [umbuchungsBetrag, setUmbuchungsBetrag] = useState("");
+    const [umbuchungsRichtung, setUmbuchungsRichtung] =
+        useState<UmbuchungsRichtung>("bank-zu-barkasse");
 
     useEffect(() => {
         try {
@@ -148,9 +158,14 @@ export default function KassenTab() {
         setNeueBeschreibung("");
         setNeuerBetrag("");
         setNeuerTyp("einnahme");
-        setNeueKassenArt("barkasse");
         setNeuesDatum(new Date().toISOString().slice(0, 10));
         setNeuerBarbelegVorhanden(true);
+    };
+
+    const umbuchungZuruecksetzen = () => {
+        setUmbuchungsDatum(new Date().toISOString().slice(0, 10));
+        setUmbuchungsBetrag("");
+        setUmbuchungsRichtung("bank-zu-barkasse");
     };
 
     const eintragHinzufuegen = () => {
@@ -164,21 +179,45 @@ export default function KassenTab() {
             id: Date.now().toString(),
             datum: neuesDatum,
             typ: neuerTyp,
-            kassenArt: neueKassenArt,
+            kassenArt: "barkasse",
             titel: neuerTitel.trim(),
             beschreibung: neueBeschreibung.trim(),
             betrag: formatEuro(betragAlsZahl),
-            barbelegVorhanden:
-                neueKassenArt === "barkasse" ? neuerBarbelegVorhanden : false,
+            barbelegVorhanden: neuerBarbelegVorhanden,
         };
 
         setKassenEintraege((prev) => [neuerEintrag, ...prev]);
         formularZuruecksetzen();
     };
 
+    const eintragLoeschen = (id: string) => {
+        if (!confirm("Buchung wirklich löschen?")) return;
+
+        setKassenEintraege((prev) =>
+            prev.filter((eintrag) => eintrag.id !== id)
+        );
+    };
+
+    const umbuchungHinzufuegen = () => {
+        if (!umbuchungsDatum) return;
+
+        const betragAlsZahl = parseBetrag(umbuchungsBetrag);
+        if (betragAlsZahl <= 0) return;
+
+        const neueUmbuchungen = erstelleUmbuchung({
+            datum: umbuchungsDatum,
+            betrag: betragAlsZahl,
+            richtung: umbuchungsRichtung,
+        });
+
+        setKassenEintraege((prev) => [...neueUmbuchungen, ...prev]);
+        umbuchungZuruecksetzen();
+    };
+
     const renderEintrag = (eintrag: KassenEintrag) => {
         const istEinnahme = eintrag.typ === "einnahme";
         const istBarkasse = eintrag.kassenArt === "barkasse";
+        const istUmbuchung = eintrag.titel.startsWith("Umbuchung ");
 
         return (
             <div
@@ -188,7 +227,7 @@ export default function KassenTab() {
                     padding: 12,
                     border: "1px solid #ccc",
                     borderRadius: 8,
-                    background: "#fff",
+                    background: istUmbuchung ? "#F8FAFC" : "#fff",
                 }}
             >
                 <div style={{ marginBottom: 6 }}>
@@ -196,6 +235,19 @@ export default function KassenTab() {
                         {istEinnahme ? "Einnahme" : "Ausgabe"}
                     </strong>{" "}
                     – {istBarkasse ? "Barkasse" : "Bank"}
+                    {istUmbuchung ? (
+                        <span
+                            style={{
+                                marginLeft: 8,
+                                padding: "2px 8px",
+                                borderRadius: 999,
+                                fontSize: 12,
+                                background: "#E2E8F0",
+                            }}
+                        >
+                            Umbuchung
+                        </span>
+                    ) : null}
                 </div>
 
                 <div style={{ fontWeight: 700 }}>{eintrag.titel}</div>
@@ -223,6 +275,23 @@ export default function KassenTab() {
                         Barbeleg: {eintrag.barbelegVorhanden ? "vorhanden" : "fehlt"}
                     </div>
                 ) : null}
+
+                <div style={{ marginTop: 10 }}>
+                    <button
+                        onClick={() => eintragLoeschen(eintrag.id)}
+                        style={{
+                            background: "#fee2e2",
+                            border: "1px solid #ef4444",
+                            color: "#991b1b",
+                            padding: "4px 8px",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                        }}
+                    >
+                        Löschen
+                    </button>
+                </div>
+
             </div>
         );
     };
@@ -243,10 +312,8 @@ export default function KassenTab() {
                 }}
             >
                 <div style={{ fontSize: 18, fontWeight: 700 }}>
-                    Gesamt: {formatEuro(kontostand)}
+                    Barkasse: {formatEuro(barkassenKontostand)}
                 </div>
-                <div style={{ fontSize: 16 }}>Bank: {formatEuro(bankKontostand)}</div>
-                <div style={{ fontSize: 16 }}>Barkasse: {formatEuro(barkassenKontostand)}</div>
             </div>
 
             <div
@@ -283,13 +350,17 @@ export default function KassenTab() {
 
                     <div>
                         <label style={{ display: "block", marginBottom: 4 }}>Kasse</label>
-                        <select
-                            value={neueKassenArt}
-                            onChange={(e) => setNeueKassenArt(e.target.value as KassenArt)}
+                        <div
+                            style={{
+                                padding: "8px 10px",
+                                border: "1px solid #ccc",
+                                borderRadius: 6,
+                                background: "#f3f4f6",
+                                fontWeight: 500,
+                            }}
                         >
-                            <option value="bank">Bank</option>
-                            <option value="barkasse">Barkasse</option>
-                        </select>
+                            Barkasse
+                        </div>
                     </div>
 
                     <div>
@@ -327,27 +398,99 @@ export default function KassenTab() {
                         />
                     </div>
 
-                    {neueKassenArt === "barkasse" ? (
-                        <label
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 8,
-                                marginTop: 4,
-                            }}
-                        >
-                            <input
-                                type="checkbox"
-                                checked={neuerBarbelegVorhanden}
-                                onChange={(e) => setNeuerBarbelegVorhanden(e.target.checked)}
-                            />
-                            Barbeleg vorhanden
-                        </label>
-                    ) : null}
-
+                    <label
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            marginTop: 4,
+                        }}
+                    >
+                        <input
+                            type="checkbox"
+                            checked={neuerBarbelegVorhanden}
+                            onChange={(e) => setNeuerBarbelegVorhanden(e.target.checked)}
+                        />
+                        Barbeleg vorhanden
+                    </label>
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                         <button onClick={eintragHinzufuegen}>+ Buchung hinzufügen</button>
                         <button type="button" onClick={formularZuruecksetzen}>
+                            Formular leeren
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style={{
+                    padding: 12,
+                    border: "1px solid #ddd",
+                    borderRadius: 8,
+                    marginBottom: 24,
+                    background: "#fff",
+                }}
+            >
+                <h3 style={{ marginTop: 0 }}>Umbuchung zwischen Bank und Barkasse</h3>
+
+                <div style={{ display: "grid", gap: 10 }}>
+                    <div>
+                        <label style={{ display: "block", marginBottom: 4 }}>Datum</label>
+                        <input
+                            type="date"
+                            value={umbuchungsDatum}
+                            onChange={(e) => setUmbuchungsDatum(e.target.value)}
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: 4 }}>Richtung</label>
+                        <select
+                            value={umbuchungsRichtung}
+                            onChange={(e) =>
+                                setUmbuchungsRichtung(e.target.value as UmbuchungsRichtung)
+                            }
+                        >
+                            <option value="bank-zu-barkasse">
+                                Bank → Barkasse
+                            </option>
+                            <option value="barkasse-zu-bank">
+                                Barkasse → Bank
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", marginBottom: 4 }}>Betrag</label>
+                        <input
+                            type="text"
+                            placeholder="z. B. 200,00"
+                            value={umbuchungsBetrag}
+                            onChange={(e) => setUmbuchungsBetrag(e.target.value)}
+                            style={{ width: "100%" }}
+                        />
+                    </div>
+
+                    <div
+                        style={{
+                            fontSize: 14,
+                            color: "#555",
+                            background: "#F8FAFC",
+                            border: "1px solid #E2E8F0",
+                            borderRadius: 8,
+                            padding: 10,
+                        }}
+                    >
+                        Titel wird automatisch gesetzt:
+                        <br />
+                        {umbuchungsRichtung === "bank-zu-barkasse"
+                            ? "Umbuchung Bank an Barkasse"
+                            : "Umbuchung Barkasse an Bank"}
+                    </div>
+
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button onClick={umbuchungHinzufuegen}>+ Umbuchung hinzufügen</button>
+                        <button type="button" onClick={umbuchungZuruecksetzen}>
                             Formular leeren
                         </button>
                     </div>
@@ -360,15 +503,6 @@ export default function KassenTab() {
                     <p>Noch keine Buchungen vorhanden.</p>
                 ) : (
                     kassenEintraege.map(renderEintrag)
-                )}
-            </div>
-
-            <div style={{ marginTop: 32 }}>
-                <h3>Nur Bank</h3>
-                {bankEintraege.length === 0 ? (
-                    <p>Keine Bank-Buchungen vorhanden.</p>
-                ) : (
-                    bankEintraege.map(renderEintrag)
                 )}
             </div>
 

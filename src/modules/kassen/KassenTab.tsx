@@ -7,13 +7,41 @@ export default function KassenTab() {
     const [neueKassenArt, setNeueKassenArt] = useState<"bank" | "barkasse">("barkasse");
     const [neuerBetrag, setNeuerBetrag] = useState("");
 
+    const parseBetrag = (wert: unknown) => {
+        const betrag = parseFloat(
+            String(wert).replace(",", ".").replace("€", "").trim()
+        );
+
+        return isNaN(betrag) ? 0 : betrag;
+    };
+
     const kontostand = useMemo(() => {
         return kassenEintraege.reduce((sum: number, eintrag: any) => {
-            const betrag = parseFloat(
-                String(eintrag.betrag).replace(",", ".").replace("€", "")
-            );
+            const betrag = parseBetrag(eintrag.betrag);
 
-            if (isNaN(betrag)) return sum;
+            return eintrag.typ === "einnahme"
+                ? sum + betrag
+                : sum - betrag;
+        }, 0);
+    }, [kassenEintraege]);
+
+    const bankKontostand = useMemo(() => {
+        return kassenEintraege.reduce((sum: number, eintrag: any) => {
+            if (eintrag.kassenArt !== "bank") return sum;
+
+            const betrag = parseBetrag(eintrag.betrag);
+
+            return eintrag.typ === "einnahme"
+                ? sum + betrag
+                : sum - betrag;
+        }, 0);
+    }, [kassenEintraege]);
+
+    const barkassenKontostand = useMemo(() => {
+        return kassenEintraege.reduce((sum: number, eintrag: any) => {
+            if (eintrag.kassenArt !== "barkasse") return sum;
+
+            const betrag = parseBetrag(eintrag.betrag);
 
             return eintrag.typ === "einnahme"
                 ? sum + betrag
@@ -24,8 +52,14 @@ export default function KassenTab() {
     return (
         <div>
             <h2>Kasse</h2>
-            <div style={{ marginBottom: 16, fontSize: 18, fontWeight: 600 }}>
-                Kontostand: {kontostand.toFixed(2)} €
+            <div style={{ marginBottom: 8, fontSize: 18, fontWeight: 600 }}>
+                Gesamt: {kontostand.toFixed(2)} €
+            </div>
+            <div style={{ marginBottom: 4, fontSize: 16 }}>
+                Bank: {bankKontostand.toFixed(2)} €
+            </div>
+            <div style={{ marginBottom: 16, fontSize: 16 }}>
+                Barkasse: {barkassenKontostand.toFixed(2)} €
             </div>
             <p>Hier entsteht die Kassenverwaltung.</p>
 

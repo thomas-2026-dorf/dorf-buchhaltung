@@ -28,6 +28,7 @@ import SettingsTabWrapper from "./modules/settings/SettingsTabWrapper";
 import { getFewoAuswahlliste } from "./lib/settings/einheiten";
 import { ladeAppSettings } from "./lib/settings/appSettingsStorage";
 import KorrekturTabWrapper from "./modules/korrektur/KorrekturTabWrapper";
+import KassenTab from "./modules/kassen/KassenTab";
 
 import { useTestBetriebStatus } from "./hooks/useTestBetriebStatus";
 import { useBaseFolder } from "./hooks/useBaseFolder";
@@ -454,7 +455,7 @@ export default function App() {
 
             {activeTab === "Beiträge" && <PlaceholderTab />}
 
-            {activeTab === "Kassen" && <PlaceholderTab />}
+            {activeTab === "Kassen" && <KassenTab />}
 
             {activeTab === "Berichte" && <PlaceholderTab />}
 

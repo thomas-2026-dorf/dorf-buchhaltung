@@ -29,3 +29,18 @@ export type Beleg = {
   notiz?: string;
   fewoId: string;
 };
+
+export type KassenArt = "bank" | "barkasse";
+
+export type KassenEintragTyp = "einnahme" | "ausgabe";
+
+export type KassenEintrag = {
+  id: string;
+  datum: string;
+  betrag: string;
+  typ: KassenEintragTyp;
+  kassenArt: KassenArt;
+  titel: string;
+  beschreibung?: string;
+  belegId?: string;
+};

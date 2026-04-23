@@ -4,11 +4,34 @@ import MitgliedFormular from "./components/MitgliedFormular";
 import MitgliederListe from "./components/MitgliederListe";
 import { ladeMitglieder, speichereMitglieder } from "./storage/mitgliederStorage";
 import { LEERES_MITGLIED } from "./types/mitglieder";
-import type { Mitglied } from "./types/mitglieder";
+import type { Familienmitglied, Mitglied } from "./types/mitglieder";
+
+function naechsteMitgliedsnummer(mitglieder: Mitglied[]): string {
+  const hoechsteNummer = mitglieder.reduce((max, mitglied) => {
+    const match = /^M-(\d{4})$/.exec(mitglied.mitgliedsnummer || "");
+    if (!match) return max;
+
+    const nummer = Number(match[1]);
+    return nummer > max ? nummer : max;
+  }, 0);
+
+  return `M-${String(hoechsteNummer + 1).padStart(4, "0")}`;
+}
+
+function familiennummernVergeben(
+  familienmitglieder: Familienmitglied[],
+  hauptMitgliedsnummer: string
+): Familienmitglied[] {
+  return familienmitglieder.map((familienmitglied, index) => ({
+    ...familienmitglied,
+    mitgliedsnummer: `${hauptMitgliedsnummer}-${index + 1}`,
+  }));
+}
 
 export default function MitgliederTab() {
   const [mitglieder, setMitglieder] = useState<Mitglied[]>([]);
   const [formular, setFormular] = useState<Mitglied>(LEERES_MITGLIED());
+  const [bearbeiteId, setBearbeiteId] = useState<string | null>(null);
 
   useEffect(() => {
     setMitglieder(ladeMitglieder());
@@ -26,6 +49,27 @@ export default function MitgliederTab() {
 
   const formularZuruecksetzen = () => {
     setFormular(LEERES_MITGLIED());
+    setBearbeiteId(null);
+  };
+
+  const loeschen = (id: string) => {
+    const neueListe = mitglieder.filter((m) => m.id !== id);
+    setMitglieder(neueListe);
+    speichereMitglieder(neueListe);
+
+    if (bearbeiteId === id) {
+      formularZuruecksetzen();
+    }
+  };
+
+  const bearbeiten = (mitglied: Mitglied) => {
+    setFormular({
+      ...mitglied,
+      familienmitglieder: [...mitglied.familienmitglieder],
+      sepa: { ...mitglied.sepa },
+    });
+    setBearbeiteId(mitglied.id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const speichern = () => {
@@ -34,12 +78,28 @@ export default function MitgliederTab() {
       return;
     }
 
-    const neuerEintrag: Mitglied = {
+    const hauptMitgliedsnummer =
+      bearbeiteId === null
+        ? naechsteMitgliedsnummer(mitglieder)
+        : formular.mitgliedsnummer;
+
+    const eintrag: Mitglied = {
       ...formular,
+      mitgliedsnummer: hauptMitgliedsnummer,
+      familienmitglieder: familiennummernVergeben(
+        formular.familienmitglieder,
+        hauptMitgliedsnummer
+      ),
       aktualisiertAm: new Date().toISOString(),
     };
 
-    const neueListe = [neuerEintrag, ...mitglieder];
+    const neueListe =
+      bearbeiteId === null
+        ? [eintrag, ...mitglieder]
+        : mitglieder.map((mitglied) =>
+            mitglied.id === bearbeiteId ? eintrag : mitglied
+          );
+
     setMitglieder(neueListe);
     speichereMitglieder(neueListe);
     formularZuruecksetzen();
@@ -59,6 +119,20 @@ export default function MitgliederTab() {
         <InfoBox titel="Anträge offen" wert={String(anzahlOffen)} />
       </div>
 
+      {bearbeiteId !== null && (
+        <div
+          style={{
+            border: "1px solid #fde68a",
+            background: "#fffbeb",
+            color: "#92400e",
+            borderRadius: 12,
+            padding: 12,
+          }}
+        >
+          Bearbeitungsmodus aktiv. Änderungen werden beim Speichern am bestehenden Mitglied übernommen.
+        </div>
+      )}
+
       <MitgliedFormular
         formular={formular}
         setFormular={setFormular}
@@ -66,7 +140,11 @@ export default function MitgliederTab() {
         onZuruecksetzen={formularZuruecksetzen}
       />
 
-      <MitgliederListe mitglieder={mitglieder} />
+      <MitgliederListe
+        mitglieder={mitglieder}
+        onDelete={loeschen}
+        onEdit={bearbeiten}
+      />
     </div>
   );
 }

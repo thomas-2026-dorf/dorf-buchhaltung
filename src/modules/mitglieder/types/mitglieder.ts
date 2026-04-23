@@ -4,6 +4,7 @@ export type Aufnahmeart = "einzel" | "familie";
 
 export type Familienmitglied = {
   id: string;
+  mitgliedsnummer: string;
   vorname: string;
   nachname: string;
   geburtsdatum: string;
@@ -21,6 +22,7 @@ export type SepaDaten = {
 
 export type Mitglied = {
   id: string;
+  mitgliedsnummer: string;
   status: Mitgliedsstatus;
   mitgliedsart: Mitgliedsart;
   aufnahmeart: Aufnahmeart;
@@ -58,6 +60,7 @@ export const LEERES_MITGLIED = (): Mitglied => {
 
   return {
     id: crypto.randomUUID(),
+    mitgliedsnummer: "",
     status: "antrag-offen",
     mitgliedsart: "aktiv",
     aufnahmeart: "einzel",

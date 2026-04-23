@@ -9,6 +9,7 @@ type FamilienmitgliederFelderProps = {
 function neuesFamilienmitglied(): Familienmitglied {
   return {
     id: crypto.randomUUID(),
+    mitgliedsnummer: "",
     vorname: "",
     nachname: "",
     geburtsdatum: "",
@@ -86,7 +87,12 @@ export default function FamilienmitgliederFelder({
                   flexWrap: "wrap",
                 }}
               >
-                <span>Familienmitglied {index + 1}</span>
+                <span>
+                  Familienmitglied {index + 1}
+                  {familienmitglied.mitgliedsnummer
+                    ? ` (${familienmitglied.mitgliedsnummer})`
+                    : ""}
+                </span>
                 <button type="button" onClick={() => entfernen(familienmitglied.id)}>
                   Entfernen
                 </button>

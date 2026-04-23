@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import KassenAuswertung from "./KassenAuswertung";
 import {
     erstelleUmbuchung,
     type UmbuchungsRichtung,
@@ -86,14 +87,6 @@ export default function KassenTab({ baseFolder, year }: Props) {
         }, 0);
     }, [kassenEintraege]);
 
-    const bankEintraege = useMemo(() => {
-        return kassenEintraege.filter((eintrag) => eintrag.kassenArt === "bank");
-    }, [kassenEintraege]);
-
-    const barkassenEintraege = useMemo(() => {
-        return kassenEintraege.filter((eintrag) => eintrag.kassenArt === "barkasse");
-    }, [kassenEintraege]);
-
     const formularZuruecksetzen = () => {
         setNeuerTitel("");
         setNeueBeschreibung("");
@@ -165,103 +158,6 @@ export default function KassenTab({ baseFolder, year }: Props) {
         } catch (error) {
             alert("Beleg konnte nicht geöffnet werden: " + String(error));
         }
-    };
-
-    const renderEintrag = (eintrag: KassenEintrag) => {
-        const istEinnahme = eintrag.typ === "einnahme";
-        const istBarkasse = eintrag.kassenArt === "barkasse";
-        const istUmbuchung = eintrag.titel.startsWith("Umbuchung ");
-
-        return (
-            <div
-                key={eintrag.id}
-                style={{
-                    marginTop: 12,
-                    padding: 12,
-                    border: "1px solid #ccc",
-                    borderRadius: 8,
-                    background: istUmbuchung ? "#F8FAFC" : "#fff",
-                }}
-            >
-                <div style={{ marginBottom: 6 }}>
-                    <strong style={{ color: istEinnahme ? "green" : "red" }}>
-                        {istEinnahme ? "Einnahme" : "Ausgabe"}
-                    </strong>{" "}
-                    – {istBarkasse ? "Barkasse" : "Bank"}
-                    {istUmbuchung ? (
-                        <span
-                            style={{
-                                marginLeft: 8,
-                                padding: "2px 8px",
-                                borderRadius: 999,
-                                fontSize: 12,
-                                background: "#E2E8F0",
-                            }}
-                        >
-                            Umbuchung
-                        </span>
-                    ) : null}
-                </div>
-
-                <div style={{ fontWeight: 700 }}>{eintrag.titel}</div>
-
-                {eintrag.beschreibung ? (
-                    <div style={{ marginTop: 4, color: "#444" }}>{eintrag.beschreibung}</div>
-                ) : null}
-
-                <div style={{ marginTop: 6, fontSize: 14, color: "#666" }}>
-                    Datum: {eintrag.datum}
-                </div>
-
-                <div
-                    style={{
-                        marginTop: 6,
-                        color: istEinnahme ? "green" : "red",
-                        fontWeight: 700,
-                    }}
-                >
-                    {istEinnahme ? "+" : "-"} {eintrag.betrag}
-                </div>
-
-                {istBarkasse ? (
-                    <div style={{ marginTop: 6, fontSize: 14 }}>
-                        Barbeleg: {eintrag.barbelegVorhanden ? "vorhanden" : "fehlt"}
-                    </div>
-                ) : null}
-
-                <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    {eintrag.belegPfad ? (
-                        <button
-                            onClick={() => belegOeffnen(eintrag.belegPfad!)}
-                            style={{
-                                background: "#dbeafe",
-                                border: "1px solid #3b82f6",
-                                color: "#1d4ed8",
-                                padding: "4px 8px",
-                                borderRadius: 6,
-                                cursor: "pointer",
-                            }}
-                        >
-                            Beleg öffnen
-                        </button>
-                    ) : null}
-
-                    <button
-                        onClick={() => eintragLoeschen(eintrag.id)}
-                        style={{
-                            background: "#fee2e2",
-                            border: "1px solid #ef4444",
-                            color: "#991b1b",
-                            padding: "4px 8px",
-                            borderRadius: 6,
-                            cursor: "pointer",
-                        }}
-                    >
-                        Löschen
-                    </button>
-                </div>
-            </div>
-        );
     };
 
     return (
@@ -468,32 +364,11 @@ export default function KassenTab({ baseFolder, year }: Props) {
                 </div>
             </div>
 
-            <div style={{ marginTop: 24 }}>
-                <h3>Alle Buchungen</h3>
-                {kassenEintraege.length === 0 ? (
-                    <p>Noch keine Buchungen vorhanden.</p>
-                ) : (
-                    kassenEintraege.map(renderEintrag)
-                )}
-            </div>
-
-            <div style={{ marginTop: 32 }}>
-                <h3>Nur Barkasse</h3>
-                {barkassenEintraege.length === 0 ? (
-                    <p>Keine Barkassen-Buchungen vorhanden.</p>
-                ) : (
-                    barkassenEintraege.map(renderEintrag)
-                )}
-            </div>
-
-            <div style={{ marginTop: 32 }}>
-                <h3>Nur Bank</h3>
-                {bankEintraege.length === 0 ? (
-                    <p>Keine Bank-Buchungen vorhanden.</p>
-                ) : (
-                    bankEintraege.map(renderEintrag)
-                )}
-            </div>
+            <KassenAuswertung
+                kassenEintraege={kassenEintraege}
+                onEintragLoeschen={eintragLoeschen}
+                onBelegOeffnen={belegOeffnen}
+            />
         </div>
     );
 }

@@ -8,6 +8,7 @@ import BelegeTabWrapper from "./modules/belegVerwaltung/BelegeTabWrapper";
 import BelegeTabHeader from "./modules/belegVerwaltung/components/BelegeTabHeader";
 import AppHeader from "./components/AppHeader";
 import PlaceholderTab from "./components/PlaceholderTab";
+import MitgliederTab from "./modules/mitglieder/MitgliederTab";
 import TestbetriebBanner from "./components/TestbetriebBanner";
 import MainCard from "./components/MainCard";
 import AppMainCardHeader from "./components/AppMainCardHeader";
@@ -451,7 +452,7 @@ export default function App() {
               <AusgangTabWrapper baseFolder={baseFolder} year={year} />
             )}
 
-            {activeTab === "Mitglieder" && <PlaceholderTab />}
+            {activeTab === "Mitglieder" && <MitgliederTab />}
 
             {activeTab === "Beiträge" && <PlaceholderTab />}
 

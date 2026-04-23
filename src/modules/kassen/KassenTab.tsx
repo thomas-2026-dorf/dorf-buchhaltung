@@ -11,6 +11,7 @@ import {
     type BuchungsTyp,
     type KassenEintrag,
 } from "./kassenStorage";
+import KassenFormular from "./KassenFormular";
 
 type Props = {
     baseFolder: string;
@@ -195,114 +196,30 @@ export default function KassenTab({ baseFolder, year }: Props) {
                     background: "#fff",
                 }}
             >
-                <h3 style={{ marginTop: 0 }}>Neue Buchung</h3>
-
-                <div style={{ display: "grid", gap: 10 }}>
-                    <div>
-                        <label style={{ display: "block", marginBottom: 4 }}>Datum</label>
-                        <input
-                            type="date"
-                            value={neuesDatum}
-                            onChange={(e) => setNeuesDatum(e.target.value)}
-                        />
-                    </div>
-
-                    <div>
-                        <label style={{ display: "block", marginBottom: 4 }}>Typ</label>
-                        <select
-                            value={neuerTyp}
-                            onChange={(e) => setNeuerTyp(e.target.value as BuchungsTyp)}
-                        >
-                            <option value="einnahme">Einnahme</option>
-                            <option value="ausgabe">Ausgabe</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label style={{ display: "block", marginBottom: 4 }}>Kasse</label>
-                        <div
-                            style={{
-                                padding: "8px 10px",
-                                border: "1px solid #ccc",
-                                borderRadius: 6,
-                                background: "#f3f4f6",
-                                fontWeight: 500,
-                            }}
-                        >
-                            Barkasse
-                        </div>
-                    </div>
-
-                    <div>
-                        <label style={{ display: "block", marginBottom: 4 }}>Titel</label>
-                        <input
-                            type="text"
-                            placeholder="z. B. Getränkeeinkauf"
-                            value={neuerTitel}
-                            onChange={(e) => setNeuerTitel(e.target.value)}
-                            style={{ width: "100%" }}
-                        />
-                    </div>
-
-                    <div>
-                        <label style={{ display: "block", marginBottom: 4 }}>
-                            Beschreibung
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="optionale Notiz"
-                            value={neueBeschreibung}
-                            onChange={(e) => setNeueBeschreibung(e.target.value)}
-                            style={{ width: "100%" }}
-                        />
-                    </div>
-
-                    <div>
-                        <label style={{ display: "block", marginBottom: 4 }}>Betrag</label>
-                        <input
-                            type="text"
-                            placeholder="z. B. 25,00"
-                            value={neuerBetrag}
-                            onChange={(e) => setNeuerBetrag(e.target.value)}
-                            style={{ width: "100%" }}
-                        />
-                    </div>
-
-                    <label
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                            marginTop: 4,
-                        }}
-                    >
-                        <input
-                            type="checkbox"
-                            checked={neuerBarbelegVorhanden}
-                            onChange={(e) => setNeuerBarbelegVorhanden(e.target.checked)}
-                        />
-                        Barbeleg vorhanden
-                    </label>
-
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                        <button onClick={eintragHinzufuegen}>+ Buchung hinzufügen</button>
-                        <button type="button" onClick={formularZuruecksetzen}>
-                            Formular leeren
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                style={{
-                    padding: 12,
-                    border: "1px solid #ddd",
-                    borderRadius: 8,
-                    marginBottom: 24,
-                    background: "#fff",
-                }}
-            >
-                <h3 style={{ marginTop: 0 }}>Umbuchung zwischen Bank und Barkasse</h3>
+                <KassenFormular
+                    neuerTitel={neuerTitel}
+                    setNeuerTitel={setNeuerTitel}
+                    neueBeschreibung={neueBeschreibung}
+                    setNeueBeschreibung={setNeueBeschreibung}
+                    neuerTyp={neuerTyp}
+                    setNeuerTyp={setNeuerTyp}
+                    neuerBetrag={neuerBetrag}
+                    setNeuerBetrag={setNeuerBetrag}
+                    neuesDatum={neuesDatum}
+                    setNeuesDatum={setNeuesDatum}
+                    neuerBarbelegVorhanden={neuerBarbelegVorhanden}
+                    setNeuerBarbelegVorhanden={setNeuerBarbelegVorhanden}
+                    eintragHinzufuegen={eintragHinzufuegen}
+                    formularZuruecksetzen={formularZuruecksetzen}
+                    umbuchungsDatum={umbuchungsDatum}
+                    setUmbuchungsDatum={setUmbuchungsDatum}
+                    umbuchungsBetrag={umbuchungsBetrag}
+                    setUmbuchungsBetrag={setUmbuchungsBetrag}
+                    umbuchungsRichtung={umbuchungsRichtung}
+                    setUmbuchungsRichtung={setUmbuchungsRichtung}
+                    umbuchungHinzufuegen={umbuchungHinzufuegen}
+                    umbuchungZuruecksetzen={umbuchungZuruecksetzen}
+                />
 
                 <div style={{ display: "grid", gap: 10 }}>
                     <div>

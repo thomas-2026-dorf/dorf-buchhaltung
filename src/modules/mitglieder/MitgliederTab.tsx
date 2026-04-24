@@ -165,6 +165,16 @@ export default function MitgliederTab() {
             wohnort: ortTeile.join(" ") || formular.wohnort,
             telefon: daten.telefon || formular.telefon,
             email: daten.email || formular.email,
+            anhaenge: [
+              ...formular.anhaenge,
+              {
+                id: crypto.randomUUID(),
+                dateiname: daten.dateiname,
+                pfad: daten.pfad,
+                typ: "mitgliedsantrag",
+                hochgeladenAm: new Date().toISOString(),
+              },
+            ],
           });
         }}
       />

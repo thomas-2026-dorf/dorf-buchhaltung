@@ -9,6 +9,10 @@ export type GeleseneMitgliedsantragDaten = {
     plzWohnort: string;
     telefon: string;
     email: string;
+
+    // 👉 NEU
+    pfad: string;
+    dateiname: string;
 };
 
 export async function leseMitgliedsantragPdfFelder(): Promise<GeleseneMitgliedsantragDaten | null> {
@@ -18,6 +22,9 @@ export async function leseMitgliedsantragPdfFelder(): Promise<GeleseneMitgliedsa
     });
 
     if (!filePath || Array.isArray(filePath)) return null;
+
+    const pfad = filePath;
+    const dateiname = pfad.split("/").pop() || "mitgliedsantrag.pdf";
 
     const pdfBytes = await readFile(filePath);
     const pdfDoc = await PDFDocument.load(pdfBytes);
@@ -30,5 +37,9 @@ export async function leseMitgliedsantragPdfFelder(): Promise<GeleseneMitgliedsa
         plzWohnort: form.getTextField("feld_3").getText() || "",
         telefon: form.getTextField("feld_4").getText() || "",
         email: form.getTextField("feld_5").getText() || "",
+
+        // 👉 NEU
+        pfad,
+        dateiname,
     };
 }

@@ -6,6 +6,8 @@ import { ladeMitglieder, speichereMitglieder } from "./storage/mitgliederStorage
 import { LEERES_MITGLIED } from "./types/mitglieder";
 import type { Familienmitglied, Mitglied } from "./types/mitglieder";
 import { erstelleMitgliedsantragPdf } from "./pdf/mitgliedsantragPdf";
+import { open } from "@tauri-apps/plugin-dialog";
+import { invoke } from "@tauri-apps/api/core";
 
 function naechsteMitgliedsnummer(mitglieder: Mitglied[]): string {
   const hoechsteNummer = mitglieder.reduce((max, mitglied) => {
@@ -71,6 +73,30 @@ export default function MitgliederTab() {
     });
     setBearbeiteId(mitglied.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const antragEinlesenOcr = async () => {
+    const filePath = await open({
+      multiple: false,
+      filters: [
+        {
+          name: "PDF",
+          extensions: ["pdf"],
+        },
+      ],
+    });
+
+    if (!filePath || Array.isArray(filePath)) return;
+
+    try {
+      const result = await invoke<{ text: string }>("run_ocr_for_file_path", {
+        filePath,
+      });
+
+      alert(result.text || "Kein Text erkannt.");
+    } catch (error) {
+      alert("OCR Fehler: " + String(error));
+    }
   };
 
   const speichern = () => {
@@ -143,6 +169,7 @@ export default function MitgliederTab() {
         onSpeichern={speichern}
         onZuruecksetzen={formularZuruecksetzen}
         onMitgliedsantrag={() => erstelleMitgliedsantragPdf(formular)}
+        onAntragEinlesenOcr={antragEinlesenOcr}
       />
 
       <MitgliederListe

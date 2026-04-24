@@ -9,6 +9,7 @@ type MitgliedFormularProps = {
   onSpeichern: () => void;
   onZuruecksetzen: () => void;
   onMitgliedsantrag: () => void;
+  onAntragEinlesenOcr: () => void;
 };
 
 export default function MitgliedFormular({
@@ -17,6 +18,7 @@ export default function MitgliedFormular({
   onSpeichern,
   onZuruecksetzen,
   onMitgliedsantrag,
+  onAntragEinlesenOcr,
 }: MitgliedFormularProps) {
   return (
     <div
@@ -255,6 +257,9 @@ export default function MitgliedFormular({
         </button>
         <button type="button" onClick={onMitgliedsantrag}>
           Mitgliedsantrag erstellen
+        </button>
+        <button type="button" onClick={onAntragEinlesenOcr}>
+          Antrag einlesen (OCR)
         </button>
         <button type="button" onClick={onZuruecksetzen}>
           Formular leeren

@@ -145,6 +145,18 @@ export default function MitgliedFormular({
           gap: 12,
         }}
       >
+
+        <TextFeld
+          label="Mandatsreferenz"
+          value={formular.sepa.mandatsreferenz}
+          onChange={(value) =>
+            setFormular({
+              ...formular,
+              sepa: { ...formular.sepa, mandatsreferenz: value },
+            })
+          }
+        />
+
         <TextFeld
           label="Kontoinhaber"
           value={formular.sepa.kontoinhaber}

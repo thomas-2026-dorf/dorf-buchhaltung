@@ -13,6 +13,7 @@ export type Familienmitglied = {
 };
 
 export type SepaDaten = {
+  mandatsreferenz: string;
   kontoinhaber: string;
   iban: string;
   bic: string;
@@ -48,6 +49,7 @@ export type Mitglied = {
 };
 
 export const LEERE_SEPA_DATEN: SepaDaten = {
+  mandatsreferenz: "",
   kontoinhaber: "",
   iban: "",
   bic: "",

@@ -91,6 +91,22 @@ export async function erstelleMitgliedsantragPdf(mitglied: Mitglied) {
 
     const form = pdfDoc.getForm();
 
+    const werte = [
+        mitglied.nachname || mitglied.vorname
+            ? `${mitglied.nachname || ""}, ${mitglied.vorname || ""}`.trim()
+            : "",
+
+        mitglied.geburtsdatum || "",
+        mitglied.strasse || "",
+
+        (mitglied.plz || mitglied.wohnort)
+            ? `${mitglied.plz || ""} ${mitglied.wohnort || ""}`.trim()
+            : "",
+
+        mitglied.telefon || "",
+        mitglied.email || "",
+    ];
+
     felder.forEach(([label, abstand], index) => {
         const y = height - abstand;
 
@@ -98,7 +114,7 @@ export async function erstelleMitgliedsantragPdf(mitglied: Mitglied) {
 
         const field = form.createTextField("feld_" + index);
 
-        field.setText("");
+        field.setText(werte[index] || "");
         field.addToPage(page, {
             x: 170,
             y: y - 12,

@@ -79,18 +79,20 @@ export default function MitgliederTab() {
       return;
     }
 
+    const bestehendeMitgliedsnummer = formular.mitgliedsnummer || "";
+
     const hauptMitgliedsnummer =
-      bearbeiteId === null
-        ? naechsteMitgliedsnummer(mitglieder)
-        : formular.mitgliedsnummer;
+      formular.status === "aktiv"
+        ? bestehendeMitgliedsnummer || naechsteMitgliedsnummer(mitglieder)
+        : bestehendeMitgliedsnummer;
 
     const eintrag: Mitglied = {
       ...formular,
       mitgliedsnummer: hauptMitgliedsnummer,
-      familienmitglieder: familiennummernVergeben(
-        formular.familienmitglieder,
-        hauptMitgliedsnummer
-      ),
+      familienmitglieder:
+        formular.status === "aktiv" && hauptMitgliedsnummer
+          ? familiennummernVergeben(formular.familienmitglieder, hauptMitgliedsnummer)
+          : formular.familienmitglieder,
       aktualisiertAm: new Date().toISOString(),
     };
 

@@ -474,6 +474,56 @@ Ok(OcrResult { text, words })
 }
 
 #[tauri::command]
+pub fn run_ocr_for_file_path(file_path: String) -> Result<OcrResult, String> {
+    let pdf_path = std::path::PathBuf::from(file_path);
+
+    if !pdf_path.exists() {
+        return Err("Datei wurde nicht gefunden.".to_string());
+    }
+
+    let mut output_prefix = std::env::temp_dir();
+    output_prefix.push("dorf_mitgliedsantrag_ocr");
+
+    let convert = Command::new("pdftoppm")
+        .arg("-png")
+        .arg("-f")
+        .arg("1")
+        .arg("-singlefile")
+        .arg(&pdf_path)
+        .arg(&output_prefix)
+        .output()
+        .map_err(|e| format!("PDF->Bild Fehler: {}", e))?;
+
+    if !convert.status.success() {
+        let err_text = String::from_utf8_lossy(&convert.stderr).to_string();
+        return Err(format!("PDF konnte nicht in Bild umgewandelt werden: {}", err_text));
+    }
+
+    let mut image_file = output_prefix.clone();
+    image_file.set_extension("png");
+
+    let ocr_text = Command::new("tesseract")
+        .arg(&image_file)
+        .arg("stdout")
+        .arg("-l")
+        .arg("deu+eng")
+        .output()
+        .map_err(|e| format!("OCR Fehler: {}", e))?;
+
+    if !ocr_text.status.success() {
+        let err_text = String::from_utf8_lossy(&ocr_text.stderr).to_string();
+        return Err(format!("OCR konnte nicht ausgeführt werden: {}", err_text));
+    }
+
+    let text = String::from_utf8_lossy(&ocr_text.stdout).to_string();
+
+    Ok(OcrResult {
+        text,
+        words: Vec::new(),
+    })
+}
+
+#[tauri::command]
 pub fn make_searchable_pdf(
     base_folder: String,
     year: String,

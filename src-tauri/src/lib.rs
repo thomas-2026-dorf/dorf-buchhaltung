@@ -14,6 +14,7 @@ pub fn run() {
       commands::move_to_eingang,
       commands::move_to_custom_folder,
       commands::run_ocr_placeholder,
+      commands::run_ocr_for_file_path,
       commands::make_searchable_pdf,
       commands::bank_speichern,
       commands::bank_datei_oeffnen,

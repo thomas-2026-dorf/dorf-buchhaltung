@@ -29,6 +29,21 @@ export default function MitgliedFormular({
     >
       <h2 style={{ marginTop: 0, marginBottom: 16 }}>Neues Mitglied / Antrag</h2>
 
+      {formular.status === "aktiv" && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: 10,
+            borderRadius: 8,
+            background: "#f1f5f9",
+            color: "#334155",
+            fontWeight: 600,
+          }}
+        >
+          Mitgliedsnummer: {formular.mitgliedsnummer || "wird beim Speichern vergeben"}
+        </div>
+      )}
+
       <div
         style={{
           display: "grid",

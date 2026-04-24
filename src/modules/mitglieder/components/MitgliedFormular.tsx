@@ -46,13 +46,7 @@ export default function MitgliedFormular({
         </div>
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
-        }}
-      >
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 180px", gap: 12 }}>
         <SelectFeld
           label="Status"
           value={formular.status}
@@ -90,11 +84,12 @@ export default function MitgliedFormular({
 
         <TextFeld
           label="Eintrittsdatum"
-          type="date"
           value={formular.eintrittsdatum}
           onChange={(value) => setFormular({ ...formular, eintrittsdatum: value })}
         />
+      </div>
 
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 12 }}>
         <TextFeld
           label="Vorname"
           value={formular.vorname}
@@ -109,24 +104,12 @@ export default function MitgliedFormular({
 
         <TextFeld
           label="Geburtsdatum"
-          type="date"
           value={formular.geburtsdatum}
           onChange={(value) => setFormular({ ...formular, geburtsdatum: value })}
         />
+      </div>
 
-        <TextFeld
-          label="Telefon"
-          value={formular.telefon}
-          onChange={(value) => setFormular({ ...formular, telefon: value })}
-        />
-
-        <TextFeld
-          label="E-Mail"
-          type="email"
-          value={formular.email}
-          onChange={(value) => setFormular({ ...formular, email: value })}
-        />
-
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 2fr", gap: 12, marginTop: 12 }}>
         <TextFeld
           label="Straße"
           value={formular.strasse}
@@ -143,6 +126,21 @@ export default function MitgliedFormular({
           label="Wohnort"
           value={formular.wohnort}
           onChange={(value) => setFormular({ ...formular, wohnort: value })}
+        />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+        <TextFeld
+          label="Telefon"
+          value={formular.telefon}
+          onChange={(value) => setFormular({ ...formular, telefon: value })}
+        />
+
+        <TextFeld
+          label="E-Mail"
+          type="email"
+          value={formular.email}
+          onChange={(value) => setFormular({ ...formular, email: value })}
         />
       </div>
 
@@ -164,7 +162,6 @@ export default function MitgliedFormular({
           gap: 12,
         }}
       >
-
         <TextFeld
           label="Mandatsreferenz"
           value={formular.sepa.mandatsreferenz}

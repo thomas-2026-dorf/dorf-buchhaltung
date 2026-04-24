@@ -13,7 +13,9 @@ export default function TextFeld({
 }: TextFeldProps) {
   return (
     <label style={{ display: "block" }}>
-      <span style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>{label}</span>
+      <span style={{ display: "block", fontWeight: 600, marginBottom: 6, whiteSpace: "nowrap" }}>
+        {label}
+      </span>
       <input
         type={type}
         value={value}

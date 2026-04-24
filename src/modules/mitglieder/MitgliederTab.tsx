@@ -109,19 +109,6 @@ export default function MitgliederTab() {
   return (
     <div className="space-y-6">
 
-      <button
-        onClick={erstelleMitgliedsantragPdf}
-        style={{
-          padding: "8px 12px",
-          background: "#2563eb",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer"
-        }}
-      >
-        Mitgliedsantrag erstellen
-      </button>
       <div
         style={{
           display: "grid",
@@ -153,6 +140,7 @@ export default function MitgliederTab() {
         setFormular={setFormular}
         onSpeichern={speichern}
         onZuruecksetzen={formularZuruecksetzen}
+        onMitgliedsantrag={() => erstelleMitgliedsantragPdf(formular)}
       />
 
       <MitgliederListe

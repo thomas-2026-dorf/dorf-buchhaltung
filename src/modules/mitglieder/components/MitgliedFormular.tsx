@@ -8,6 +8,7 @@ type MitgliedFormularProps = {
   setFormular: (mitglied: Mitglied) => void;
   onSpeichern: () => void;
   onZuruecksetzen: () => void;
+  onMitgliedsantrag: () => void;
 };
 
 export default function MitgliedFormular({
@@ -15,6 +16,7 @@ export default function MitgliedFormular({
   setFormular,
   onSpeichern,
   onZuruecksetzen,
+  onMitgliedsantrag,
 }: MitgliedFormularProps) {
   return (
     <div
@@ -235,6 +237,9 @@ export default function MitgliedFormular({
       <div style={{ display: "flex", gap: 12, marginTop: 16, flexWrap: "wrap" }}>
         <button type="button" onClick={onSpeichern}>
           Mitglied speichern
+        </button>
+        <button type="button" onClick={onMitgliedsantrag}>
+          Mitgliedsantrag erstellen
         </button>
         <button type="button" onClick={onZuruecksetzen}>
           Formular leeren

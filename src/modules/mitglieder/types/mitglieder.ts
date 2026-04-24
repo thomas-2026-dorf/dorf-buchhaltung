@@ -21,6 +21,14 @@ export type SepaDaten = {
   mandatDatum: string;
 };
 
+export type Anhang = {
+  id: string;
+  dateiname: string;
+  pfad: string;
+  typ: "mitgliedsantrag" | "sepa";
+  hochgeladenAm: string;
+};
+
 export type Mitglied = {
   id: string;
   mitgliedsnummer: string;
@@ -42,6 +50,7 @@ export type Mitglied = {
 
   familienmitglieder: Familienmitglied[];
   sepa: SepaDaten;
+  anhaenge: Anhang[];
 
   notiz: string;
   erstelltAm: string;
@@ -81,6 +90,7 @@ export const LEERES_MITGLIED = (): Mitglied => {
 
     familienmitglieder: [],
     sepa: { ...LEERE_SEPA_DATEN },
+    anhaenge: [],
 
     notiz: "",
     erstelltAm: jetzt,

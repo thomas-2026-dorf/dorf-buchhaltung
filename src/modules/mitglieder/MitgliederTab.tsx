@@ -5,6 +5,7 @@ import MitgliederListe from "./components/MitgliederListe";
 import { ladeMitglieder, speichereMitglieder } from "./storage/mitgliederStorage";
 import { LEERES_MITGLIED } from "./types/mitglieder";
 import type { Familienmitglied, Mitglied } from "./types/mitglieder";
+import { erstelleMitgliedsantragPdf } from "./pdf/mitgliedsantragPdf";
 
 function naechsteMitgliedsnummer(mitglieder: Mitglied[]): string {
   const hoechsteNummer = mitglieder.reduce((max, mitglied) => {
@@ -97,8 +98,8 @@ export default function MitgliederTab() {
       bearbeiteId === null
         ? [eintrag, ...mitglieder]
         : mitglieder.map((mitglied) =>
-            mitglied.id === bearbeiteId ? eintrag : mitglied
-          );
+          mitglied.id === bearbeiteId ? eintrag : mitglied
+        );
 
     setMitglieder(neueListe);
     speichereMitglieder(neueListe);
@@ -107,6 +108,20 @@ export default function MitgliederTab() {
 
   return (
     <div className="space-y-6">
+
+      <button
+        onClick={erstelleMitgliedsantragPdf}
+        style={{
+          padding: "8px 12px",
+          background: "#2563eb",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer"
+        }}
+      >
+        Mitgliedsantrag erstellen
+      </button>
       <div
         style={{
           display: "grid",

@@ -934,21 +934,22 @@ pub fn mitglied_anhang_in_basisordner_kopieren(
     nachname: String,
     vorname: String,
     typ: String,
+    mitgliedsnummer: String,
 ) -> Result<String, String> {
     let sauberer_nachname = nachname.trim().replace("/", "-").replace("\\", "-");
     let sauberer_vorname = vorname.trim().replace("/", "-").replace("\\", "-");
 
-    let mitglied_prefix = if typ == "mitgliedsantrag" {
-    "ANTRAG".to_string()
-} else {
-    "MITGLIED".to_string()
-};
+    let prefix = if mitgliedsnummer.trim().is_empty() {
+        return Err("Mitgliedsnummer fehlt beim Speichern des Anhangs".to_string());
+    } else {
+        mitgliedsnummer
+    };
 
-let ordner_name = if sauberer_nachname.is_empty() && sauberer_vorname.is_empty() {
-    format!("{}_Unbekannt", mitglied_prefix)
-} else {
-    format!("{}_{}_{}", mitglied_prefix, sauberer_nachname, sauberer_vorname)
-};
+    let ordner_name = if sauberer_nachname.is_empty() && sauberer_vorname.is_empty() {
+        format!("{}_Unbekannt", prefix)
+    } else {
+        format!("{}_{}_{}", prefix, sauberer_nachname, sauberer_vorname)
+    };
 
     let datum = chrono::Local::now().format("%Y-%m-%d").to_string();
 

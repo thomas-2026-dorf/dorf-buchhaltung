@@ -84,6 +84,7 @@ export default function MitgliedFormular({
 
         <TextFeld
           label="Eintrittsdatum"
+          type="date"
           value={formular.eintrittsdatum}
           onChange={(value) => setFormular({ ...formular, eintrittsdatum: value })}
         />
@@ -104,6 +105,7 @@ export default function MitgliedFormular({
 
         <TextFeld
           label="Geburtsdatum"
+          type="date"
           value={formular.geburtsdatum}
           onChange={(value) => setFormular({ ...formular, geburtsdatum: value })}
         />

@@ -59,14 +59,14 @@ export async function erstelleMitgliedsantragPdf(mitglied: Mitglied) {
         }
     );
 
-    page.drawText("[  ] aktives Mitglied", {
+    page.drawText(mitglied.mitgliedsart === "aktiv" ? "[X] aktives Mitglied" : "[  ] aktives Mitglied", {
         x: 70,
         y: height - 200,
         size: 11,
         font,
     });
 
-    page.drawText("[  ] Foerdermitglied", {
+    page.drawText(mitglied.mitgliedsart === "foerder" ? "[X] Foerdermitglied" : "[  ] Foerdermitglied", {
         x: 250,
         y: height - 200,
         size: 11,
@@ -131,14 +131,14 @@ export async function erstelleMitgliedsantragPdf(mitglied: Mitglied) {
         font,
     });
 
-    page.drawText("[  ] Einzelmitglied", {
+    page.drawText(mitglied.aufnahmeart === "einzel" ? "[X] Einzelmitglied" : "[  ] Einzelmitglied", {
         x: 70,
         y: height - 515,
         size: 11,
         font,
     });
 
-    page.drawText("[  ] Familie", {
+    page.drawText(mitglied.aufnahmeart === "familie" ? "[X] Familie" : "[  ] Familie", {
         x: 250,
         y: height - 515,
         size: 11,
@@ -181,7 +181,16 @@ export async function erstelleMitgliedsantragPdf(mitglied: Mitglied) {
         size: 10,
         font,
     });
-    zeichneLinie(page, 125, 143, 270);
+
+    const ortDatumField = form.createTextField("feld_ort_datum");
+    ortDatumField.setText(mitglied.wohnort ? `${mitglied.wohnort}, ` : "");
+    ortDatumField.addToPage(page, {
+        x: 125,
+        y: 132,
+        width: 145,
+        height: 18,
+        borderWidth: 1,
+    });
 
     page.drawText("Unterschrift:", {
         x: 310,

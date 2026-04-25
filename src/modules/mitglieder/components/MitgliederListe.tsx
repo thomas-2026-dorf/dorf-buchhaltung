@@ -1,3 +1,4 @@
+import { invoke } from "@tauri-apps/api/core";
 import type { Mitglied } from "../types/mitglieder";
 
 type MitgliederListeProps = {
@@ -27,7 +28,7 @@ export default function MitgliederListe({
       ) : (
         <div style={{ display: "grid", gap: 12 }}>
           {mitglieder.map((mitglied) => {
-            const hatMitgliedsantrag = mitglied.anhaenge?.some(
+            const mitgliedsantrag = mitglied.anhaenge?.find(
               (a) => a.typ === "mitgliedsantrag"
             );
 
@@ -90,21 +91,38 @@ export default function MitgliederListe({
                   E-Mail: {mitglied.email || "-"} | Telefon: {mitglied.telefon || "-"}
                 </div>
 
-                {/* 🔹 NEU: Anzeige Mitgliedsantrag */}
-                <div style={{ marginTop: 8 }}>
-                  {hatMitgliedsantrag ? (
-                    <span
-                      style={{
-                        background: "#dcfce7",
-                        color: "#166534",
-                        padding: "4px 8px",
-                        borderRadius: 6,
-                        fontSize: 12,
-                        fontWeight: 600,
-                      }}
-                    >
-                      Mitgliedsantrag vorhanden
-                    </span>
+                <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {mitgliedsantrag ? (
+                    <>
+                      <span
+                        style={{
+                          background: "#dcfce7",
+                          color: "#166534",
+                          padding: "4px 8px",
+                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        Mitgliedsantrag vorhanden
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            await invoke("open_file_extern", {
+                              pfad: mitgliedsantrag.pfad,
+                            });
+                          } catch (error) {
+                            console.error(error);
+                            alert("PDF konnte nicht geöffnet werden.");
+                          }
+                        }}
+                      >
+                        PDF öffnen
+                      </button>
+                    </>
                   ) : (
                     <span
                       style={{

@@ -452,7 +452,7 @@ export default function App() {
               <AusgangTabWrapper baseFolder={baseFolder} year={year} />
             )}
 
-            {activeTab === "Mitglieder" && <MitgliederTab />}
+            {activeTab === "Mitglieder" && <MitgliederTab baseFolder={baseFolder} />}
 
             {activeTab === "Beiträge" && <PlaceholderTab />}
 

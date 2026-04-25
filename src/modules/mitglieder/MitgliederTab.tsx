@@ -30,7 +30,11 @@ function familiennummernVergeben(
   }));
 }
 
-export default function MitgliederTab() {
+type MitgliederTabProps = {
+  baseFolder: string;
+};
+
+export default function MitgliederTab({ baseFolder: _baseFolder }: MitgliederTabProps) {
   const [mitglieder, setMitglieder] = useState<Mitglied[]>([]);
   const [formular, setFormular] = useState<Mitglied>(LEERES_MITGLIED());
   const [bearbeiteId, setBearbeiteId] = useState<string | null>(null);

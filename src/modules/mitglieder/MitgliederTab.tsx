@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import InfoBox from "./components/InfoBox";
 import MitgliedFormular from "./components/MitgliedFormular";
 import MitgliederListe from "./components/MitgliederListe";
@@ -34,7 +35,7 @@ type MitgliederTabProps = {
   baseFolder: string;
 };
 
-export default function MitgliederTab({ baseFolder: _baseFolder }: MitgliederTabProps) {
+export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
   const [mitglieder, setMitglieder] = useState<Mitglied[]>([]);
   const [formular, setFormular] = useState<Mitglied>(LEERES_MITGLIED());
   const [bearbeiteId, setBearbeiteId] = useState<string | null>(null);
@@ -159,10 +160,35 @@ export default function MitgliederTab({ baseFolder: _baseFolder }: MitgliederTab
 
           const [plzTeil = "", ...ortTeile] = daten.plzWohnort.split(" ");
 
+          if (!baseFolder) {
+            alert("Bitte zuerst einen Basisordner wählen.");
+            return;
+          }
+
+          const neuerNachname = nachnameTeil || formular.nachname;
+          const neuerVorname = vornameTeil || formular.vorname;
+
+          const mitgliedsnummer =
+            formular.mitgliedsnummer || naechsteMitgliedsnummer(mitglieder);
+
+          const gespeicherterPfad = await invoke<string>(
+            "mitglied_anhang_in_basisordner_kopieren",
+            {
+              baseFolder,
+              quellPfad: daten.pfad,
+              nachname: neuerNachname,
+              vorname: neuerVorname,
+              typ: "mitgliedsantrag",
+              mitgliedsnummer,
+            }
+          );
+
           setFormular({
             ...formular,
-            nachname: nachnameTeil || formular.nachname,
-            vorname: vornameTeil || formular.vorname,
+            mitgliedsnummer,
+            status: "aktiv",
+            nachname: neuerNachname,
+            vorname: neuerVorname,
             geburtsdatum: daten.geburtsdatum || formular.geburtsdatum,
             strasse: daten.strasse || formular.strasse,
             plz: plzTeil || formular.plz,
@@ -170,11 +196,11 @@ export default function MitgliederTab({ baseFolder: _baseFolder }: MitgliederTab
             telefon: daten.telefon || formular.telefon,
             email: daten.email || formular.email,
             anhaenge: [
-              ...formular.anhaenge,
+              ...formular.anhaenge.filter((anhang) => anhang.typ !== "mitgliedsantrag"),
               {
                 id: crypto.randomUUID(),
-                dateiname: daten.dateiname,
-                pfad: daten.pfad,
+                dateiname: "mitgliedsantrag.pdf",
+                pfad: gespeicherterPfad,
                 typ: "mitgliedsantrag",
                 hochgeladenAm: new Date().toISOString(),
               },

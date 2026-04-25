@@ -32,7 +32,9 @@ pub fn run() {
       commands::relpath_pdf_exists,
       commands::read_pdf_bytes_by_relpath,
       commands::open_file_extern,
+      commands::mitglied_anhang_in_basisordner_kopieren,
       external_backup::run_external_backup
+      
     ])
     .setup(|app| {
       if cfg!(debug_assertions) {

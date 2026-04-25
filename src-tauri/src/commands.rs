@@ -926,3 +926,54 @@ pub fn open_file_extern(pfad: String) -> Result<(), String> {
 
     Ok(())
 }
+
+#[tauri::command]
+pub fn mitglied_anhang_in_basisordner_kopieren(
+    base_folder: String,
+    quell_pfad: String,
+    nachname: String,
+    vorname: String,
+    typ: String,
+) -> Result<String, String> {
+    let sauberer_nachname = nachname.trim().replace("/", "-").replace("\\", "-");
+    let sauberer_vorname = vorname.trim().replace("/", "-").replace("\\", "-");
+
+    let mitglied_prefix = if typ == "mitgliedsantrag" {
+    "ANTRAG".to_string()
+} else {
+    "MITGLIED".to_string()
+};
+
+let ordner_name = if sauberer_nachname.is_empty() && sauberer_vorname.is_empty() {
+    format!("{}_Unbekannt", mitglied_prefix)
+} else {
+    format!("{}_{}_{}", mitglied_prefix, sauberer_nachname, sauberer_vorname)
+};
+
+    let datum = chrono::Local::now().format("%Y-%m-%d").to_string();
+
+let dateiname = match typ.as_str() {
+    "sepa" => format!("{}_sepa-mandat.pdf", datum),
+    _ => format!("{}_mitgliedsantrag.pdf", datum),
+};
+
+    let ziel_ordner = PathBuf::from(&base_folder)
+        .join("Mitglieder-Anhaenge")
+        .join(ordner_name);
+
+    fs::create_dir_all(&ziel_ordner)
+        .map_err(|e| format!("Anhang-Ordner konnte nicht erstellt werden: {}", e))?;
+
+    let ziel_pfad = ziel_ordner.join(dateiname);
+
+    fs::copy(&quell_pfad, &ziel_pfad).map_err(|e| {
+        format!(
+            "Anhang konnte nicht kopiert werden: {} -> {} ({})",
+            quell_pfad,
+            ziel_pfad.display(),
+            e
+        )
+    })?;
+
+    Ok(ziel_pfad.to_string_lossy().to_string())
+}

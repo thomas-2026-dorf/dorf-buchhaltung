@@ -5,12 +5,10 @@ import { cardStyle } from "../../../design/styles";
 
 type Props = {
   baseFolder: string;
-  glaeubigerId: string;
   status: string;
   onBackup: () => void;
   onRestore: () => void;
   onChooseBaseFolder: () => void;
-  onGlaeubigerIdChange: (value: string) => void;
 };
 
 type ExternalBackupResult = {
@@ -23,12 +21,10 @@ type ExternalBackupResult = {
 
 export default function SettingsLocalPanel({
   baseFolder,
-  glaeubigerId,
   status,
   onBackup,
   onRestore,
   onChooseBaseFolder,
-  onGlaeubigerIdChange,
 }: Props) {
   const [externalBackupStatus, setExternalBackupStatus] = useState("");
 
@@ -134,26 +130,6 @@ export default function SettingsLocalPanel({
           {baseFolder || "noch nicht gesetzt"}
         </div>
 
-        <div>
-          <strong>Gläubiger-ID:</strong>
-          <input
-            type="text"
-            value={glaeubigerId}
-            onChange={(event) => onGlaeubigerIdChange(event.target.value)}
-            placeholder="z. B. DE00ZZZ00000000000"
-            style={{
-              marginTop: 6,
-              width: "100%",
-              maxWidth: 360,
-              display: "block",
-              border: "1px solid #d0d7de",
-              borderRadius: 8,
-              padding: 10,
-              font: "inherit",
-              boxSizing: "border-box",
-            }}
-          />
-        </div>
 
         <div style={{ fontSize: 14, color: "#475467", lineHeight: 1.5 }}>
           Das externe Backup kopiert den kompletten Datenbestand aus dem aktuell

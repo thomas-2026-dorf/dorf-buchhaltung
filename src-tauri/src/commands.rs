@@ -978,3 +978,44 @@ let dateiname = match typ.as_str() {
 
     Ok(ziel_pfad.to_string_lossy().to_string())
 }
+
+#[tauri::command]
+pub fn vereinslogo_in_basisordner_kopieren(
+    base_folder: String,
+    quell_pfad: String,
+) -> Result<String, String> {
+    let quell_path = PathBuf::from(&quell_pfad);
+
+    if !quell_path.exists() {
+        return Err(format!("Logo-Datei nicht gefunden: {}", quell_pfad));
+    }
+
+    let extension = quell_path
+        .extension()
+        .and_then(|wert| wert.to_str())
+        .unwrap_or("png")
+        .to_lowercase();
+
+    let dateiname = match extension.as_str() {
+        "jpg" | "jpeg" => "logo.jpg",
+        _ => "logo.png",
+    };
+
+    let ziel_ordner = PathBuf::from(&base_folder).join("Vereinsdaten");
+
+    fs::create_dir_all(&ziel_ordner)
+        .map_err(|e| format!("Vereinsdaten-Ordner konnte nicht erstellt werden: {}", e))?;
+
+    let ziel_pfad = ziel_ordner.join(dateiname);
+
+    fs::copy(&quell_path, &ziel_pfad).map_err(|e| {
+        format!(
+            "Logo konnte nicht kopiert werden: {} -> {} ({})",
+            quell_pfad,
+            ziel_pfad.display(),
+            e
+        )
+    })?;
+
+    Ok(ziel_pfad.to_string_lossy().to_string())
+}

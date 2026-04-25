@@ -1,20 +1,51 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { readFile } from "@tauri-apps/plugin-fs";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import type { Mitglied } from "../types/mitglieder";
 
+import type { Vereinsdaten } from "../../../lib/settings/vereinsdaten";
+
 export async function erstelleSepaMandatPdf(
     mitglied: Mitglied,
-    glaeubigerId: string
+    vereinsdaten: Vereinsdaten
 ) {
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([595, 842]);
+    const { height } = page.getSize();
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const form = pdfDoc.getForm();
 
-    const { height } = page.getSize();
+    if (vereinsdaten.logoPfad) {
+        try {
+            const logoBytes = await readFile(vereinsdaten.logoPfad);
+
+            let image;
+
+            if (vereinsdaten.logoPfad.toLowerCase().endsWith(".png")) {
+                image = await pdfDoc.embedPng(logoBytes);
+            } else {
+                image = await pdfDoc.embedJpg(logoBytes);
+            }
+
+            const maxWidth = 120;
+            const scale = maxWidth / image.width;
+            const scaledWidth = image.width * scale;
+            const scaledHeight = image.height * scale;
+
+            page.drawImage(image, {
+                x: 420,
+                y: height - 40 - scaledHeight,
+                width: scaledWidth,
+                height: scaledHeight,
+            });
+        } catch (err) {
+            console.error("Logo konnte nicht geladen werden:", err);
+        }
+    }
+
 
     page.drawText("Dorfgemeinschaft Loppersum", {
         x: 50,
@@ -37,11 +68,23 @@ export async function erstelleSepaMandatPdf(
         font: bold,
     });
 
-    page.drawText("Dorfgemeinschaft Loppersum", { x: 50, y: height - 165, size: 10, font });
-    page.drawText("Nelkenstr. 9, 26759 Hinte", { x: 50, y: height - 182, size: 10, font });
-    page.drawText(`Gläubiger-ID: ${glaeubigerId || "nicht eingetragen"}`, {
+    page.drawText(vereinsdaten.name || "Verein", { x: 50, y: height - 165, size: 10, font });
+    page.drawText(vereinsdaten.strasse || "", { x: 50, y: height - 182, size: 10, font });
+    page.drawText(`${vereinsdaten.plz || ""} ${vereinsdaten.ort || ""}`.trim(), {
         x: 50,
         y: height - 199,
+        size: 10,
+        font,
+    });
+    page.drawText(vereinsdaten.email || "", {
+        x: 50,
+        y: height - 216,
+        size: 10,
+        font,
+    });
+    page.drawText(`Gläubiger-ID: ${vereinsdaten.glaeubigerId || "nicht eingetragen"}`, {
+        x: 50,
+        y: height - 233,
         size: 10,
         font,
     });
@@ -51,7 +94,7 @@ export async function erstelleSepaMandatPdf(
             label: "Mandatsreferenz:",
             name: "sepa_mandatsreferenz",
             value: mitglied.sepa.mandatsreferenz || mitglied.mitgliedsnummer || "",
-            y: height - 230,
+            y: height - 270,
         },
         {
             label: "Name Kontoinhaber:",
@@ -59,37 +102,37 @@ export async function erstelleSepaMandatPdf(
             value:
                 mitglied.sepa.kontoinhaber ||
                 `${mitglied.vorname || ""} ${mitglied.nachname || ""}`.trim(),
-            y: height - 265,
+            y: height - 305,
         },
         {
             label: "Straße:",
             name: "sepa_strasse",
             value: mitglied.strasse || "",
-            y: height - 300,
+            y: height - 340,
         },
         {
             label: "PLZ / Ort:",
             name: "sepa_ort",
             value: `${mitglied.plz || ""} ${mitglied.wohnort || ""}`.trim(),
-            y: height - 335,
+            y: height - 375,
         },
         {
             label: "IBAN:",
             name: "sepa_iban",
             value: mitglied.sepa.iban || "",
-            y: height - 370,
+            y: height - 410,
         },
         {
             label: "BIC:",
             name: "sepa_bic",
             value: mitglied.sepa.bic || "",
-            y: height - 405,
+            y: height - 445,
         },
         {
             label: "Kreditinstitut:",
             name: "sepa_kreditinstitut",
             value: mitglied.sepa.kreditinstitut || "",
-            y: height - 440,
+            y: height - 480,
         },
     ];
 
@@ -114,21 +157,21 @@ export async function erstelleSepaMandatPdf(
 
     page.drawText("Zahlungsart:", {
         x: 50,
-        y: height - 490,
+        y: height - 525,
         size: 10,
         font: bold,
     });
 
     page.drawText("[X] Wiederkehrende Zahlung", {
         x: 180,
-        y: height - 490,
+        y: height - 525,
         size: 10,
         font,
     });
 
     page.drawText("[  ] Einmalige Zahlung", {
         x: 340,
-        y: height - 490,
+        y: height - 525,
         size: 10,
         font,
     });

@@ -33,6 +33,7 @@ pub fn run() {
       commands::read_pdf_bytes_by_relpath,
       commands::open_file_extern,
       commands::mitglied_anhang_in_basisordner_kopieren,
+      commands::vereinslogo_in_basisordner_kopieren,
       external_backup::run_external_backup
       
     ])

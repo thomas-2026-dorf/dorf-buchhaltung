@@ -12,12 +12,13 @@ import {
 import {
     ladeLocalSettings,
     setzeLocalBaseFolder,
-    speichereLocalSettings,
 } from "../../lib/settings/localSettings";
 import { normalizeBaseFolderPath } from "../../lib/settings/pathUtils";
 import { getEinheiten } from "../../lib/settings/einheiten";
+import SettingsVereinsdatenPanel from "./components/SettingsVereinsdatenPanel";
+import { ladeVereinsdaten, speichereVereinsdaten } from "../../lib/settings/vereinsdaten";
 
-type SettingsSection = "lokal" | "einheiten" | "datev" | "bank";
+type SettingsSection = "lokal" | "vereinsdaten" | "einheiten" | "datev" | "bank";
 
 const sectionButtonStyle = (active: boolean) => ({
     padding: "10px 14px",
@@ -45,6 +46,7 @@ export default function SettingsTab({
         };
     });
     const [localSettings, setLocalSettings] = useState(ladeLocalSettings());
+    const [vereinsdaten, setVereinsdaten] = useState(ladeVereinsdaten());
     const [status, setStatus] = useState("");
     const [testAktiv, setTestAktiv] = useState(false);
     const [activeSection, setActiveSection] = useState<SettingsSection>("lokal");
@@ -327,6 +329,14 @@ export default function SettingsTab({
 
                 <button
                     type="button"
+                    onClick={() => setActiveSection("vereinsdaten")}
+                    style={sectionButtonStyle(activeSection === "vereinsdaten")}
+                >
+                    Vereinsdaten
+                </button>
+
+                <button
+                    type="button"
                     onClick={() => setActiveSection("einheiten")}
                     style={sectionButtonStyle(activeSection === "einheiten")}
                 >
@@ -368,20 +378,21 @@ export default function SettingsTab({
             {activeSection === "lokal" && (
                 <SettingsLocalPanel
                     baseFolder={localSettings.baseFolder}
-                    glaeubigerId={localSettings.glaeubigerId}
                     status={status}
                     onBackup={handleBackup}
                     onRestore={handleRestore}
                     onChooseBaseFolder={handleChooseBaseFolder}
-                    onGlaeubigerIdChange={(value) => {
-                        const neueSettings = {
-                            ...localSettings,
-                            glaeubigerId: value,
-                        };
+                />
+            )}
 
-                        speichereLocalSettings(neueSettings);
-                        setLocalSettings(neueSettings);
-                        setStatus("Gläubiger-ID gespeichert.");
+            {activeSection === "vereinsdaten" && (
+                <SettingsVereinsdatenPanel
+                    vereinsdaten={vereinsdaten}
+                    baseFolder={localSettings.baseFolder}
+                    onChange={(neueVereinsdaten) => {
+                        speichereVereinsdaten(neueVereinsdaten);
+                        setVereinsdaten(neueVereinsdaten);
+                        setStatus("Vereinsdaten gespeichert.");
                     }}
                 />
             )}

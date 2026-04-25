@@ -1,7 +1,9 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { readFile } from "@tauri-apps/plugin-fs";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import type { Mitglied } from "../types/mitglieder";
+import type { Vereinsdaten } from "../../../lib/settings/vereinsdaten";
 
 function zeichneLinie(page: any, x1: number, y: number, x2: number) {
     page.drawLine({
@@ -12,45 +14,84 @@ function zeichneLinie(page: any, x1: number, y: number, x2: number) {
     });
 }
 
-export async function erstelleMitgliedsantragPdf(mitglied: Mitglied) {
+export async function erstelleMitgliedsantragPdf(
+    mitglied: Mitglied,
+    vereinsdaten: Vereinsdaten
+) {
     const pdfDoc = await PDFDocument.create();
 
     const page = pdfDoc.addPage([595, 842]); // A4
+    const { height } = page.getSize();
+
+    if (vereinsdaten.logoPfad) {
+        try {
+            const logoBytes = await readFile(vereinsdaten.logoPfad);
+
+            let image;
+
+            if (vereinsdaten.logoPfad.toLowerCase().endsWith(".png")) {
+                image = await pdfDoc.embedPng(logoBytes);
+            } else {
+                image = await pdfDoc.embedJpg(logoBytes);
+            }
+
+            const maxWidth = 120;
+
+            const scale = maxWidth / image.width;
+            const scaledWidth = image.width * scale;
+            const scaledHeight = image.height * scale;
+
+            page.drawImage(image, {
+                x: 420,
+                y: height - 40 - scaledHeight,
+                width: scaledWidth,
+                height: scaledHeight,
+            });
+
+        } catch (err) {
+            console.error("Logo konnte nicht geladen werden:", err);
+        }
+    }
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    const { height } = page.getSize();
-
-    page.drawText("Dorfgemeinschaft Loppersum", {
+    page.drawText(vereinsdaten.name || "Verein", {
         x: 50,
         y: height - 55,
         size: 14,
         font: bold,
     });
 
-    page.drawText("Nelkenstr. 9", {
+    page.drawText(vereinsdaten.strasse || "", {
         x: 50,
         y: height - 75,
         size: 10,
         font,
     });
 
-    page.drawText("26759 Hinte", {
+    page.drawText(`${vereinsdaten.plz || ""} ${vereinsdaten.ort || ""}`.trim(), {
         x: 50,
         y: height - 90,
         size: 10,
         font,
     });
 
+    page.drawText(vereinsdaten.email || "", {
+        x: 50,
+        y: height - 105,
+        size: 10,
+        font,
+    });
+
     page.drawText("Aufnahmeantrag", {
         x: 50,
-        y: height - 135,
+        y: height - 145,
         size: 18,
         font: bold,
     });
 
     page.drawText(
-        "Hiermit beantrage ich die Mitgliedschaft fuer die Dorfgemeinschaft Loppersum und bitte um Aufnahme als:",
+        `Hiermit beantrage ich die Mitgliedschaft fuer ${vereinsdaten.name || "den Verein"} und bitte um Aufnahme als:`,
         {
             x: 50,
             y: height - 170,

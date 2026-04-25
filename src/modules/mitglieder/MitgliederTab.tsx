@@ -9,7 +9,7 @@ import type { Familienmitglied, Mitglied } from "./types/mitglieder";
 import { erstelleMitgliedsantragPdf } from "./pdf/mitgliedsantragPdf";
 import { erstelleSepaMandatPdf } from "./pdf/sepaMandatPdf";
 import { leseMitgliedsantragUndSepaPdfFelder } from "./pdf/mitgliedsantragAuslesen";
-import { ladeLocalSettings } from "../../lib/settings/localSettings";
+import { ladeVereinsdaten } from "../../lib/settings/vereinsdaten";
 
 function naechsteMitgliedsnummer(mitglieder: Mitglied[]): string {
   const hoechsteNummer = mitglieder.reduce((max, mitglied) => {
@@ -165,10 +165,12 @@ export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
 
           setFormular(formularMitNummer);
 
-          await erstelleMitgliedsantragPdf(formularMitNummer);
+          const vereinsdaten = ladeVereinsdaten();
+
+          await erstelleMitgliedsantragPdf(formularMitNummer, vereinsdaten);
           await erstelleSepaMandatPdf(
             formularMitNummer,
-            ladeLocalSettings().glaeubigerId
+            vereinsdaten
           );
         }}
         onAntragEinlesenOcr={async () => {

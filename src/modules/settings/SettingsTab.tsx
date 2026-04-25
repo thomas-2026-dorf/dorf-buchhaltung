@@ -12,6 +12,7 @@ import {
 import {
     ladeLocalSettings,
     setzeLocalBaseFolder,
+    speichereLocalSettings,
 } from "../../lib/settings/localSettings";
 import { normalizeBaseFolderPath } from "../../lib/settings/pathUtils";
 import { getEinheiten } from "../../lib/settings/einheiten";
@@ -367,10 +368,21 @@ export default function SettingsTab({
             {activeSection === "lokal" && (
                 <SettingsLocalPanel
                     baseFolder={localSettings.baseFolder}
+                    glaeubigerId={localSettings.glaeubigerId}
                     status={status}
                     onBackup={handleBackup}
                     onRestore={handleRestore}
                     onChooseBaseFolder={handleChooseBaseFolder}
+                    onGlaeubigerIdChange={(value) => {
+                        const neueSettings = {
+                            ...localSettings,
+                            glaeubigerId: value,
+                        };
+
+                        speichereLocalSettings(neueSettings);
+                        setLocalSettings(neueSettings);
+                        setStatus("Gläubiger-ID gespeichert.");
+                    }}
                 />
             )}
 

@@ -7,7 +7,9 @@ import { ladeMitglieder, speichereMitglieder } from "./storage/mitgliederStorage
 import { LEERES_MITGLIED } from "./types/mitglieder";
 import type { Familienmitglied, Mitglied } from "./types/mitglieder";
 import { erstelleMitgliedsantragPdf } from "./pdf/mitgliedsantragPdf";
-import { leseMitgliedsantragPdfFelder } from "./pdf/mitgliedsantragAuslesen";
+import { erstelleSepaMandatPdf } from "./pdf/sepaMandatPdf";
+import { leseMitgliedsantragUndSepaPdfFelder } from "./pdf/mitgliedsantragAuslesen";
+import { ladeLocalSettings } from "../../lib/settings/localSettings";
 
 function naechsteMitgliedsnummer(mitglieder: Mitglied[]): string {
   const hoechsteNummer = mitglieder.reduce((max, mitglied) => {
@@ -148,17 +150,40 @@ export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
         setFormular={setFormular}
         onSpeichern={speichern}
         onZuruecksetzen={formularZuruecksetzen}
-        onMitgliedsantrag={() => erstelleMitgliedsantragPdf(formular)}
+        onMitgliedsantrag={async () => {
+          const mitgliedsnummer =
+            formular.mitgliedsnummer || naechsteMitgliedsnummer(mitglieder);
+
+          const formularMitNummer = {
+            ...formular,
+            mitgliedsnummer,
+            sepa: {
+              ...formular.sepa,
+              mandatsreferenz: formular.sepa.mandatsreferenz || mitgliedsnummer,
+            },
+          };
+
+          setFormular(formularMitNummer);
+
+          await erstelleMitgliedsantragPdf(formularMitNummer);
+          await erstelleSepaMandatPdf(
+            formularMitNummer,
+            ladeLocalSettings().glaeubigerId
+          );
+        }}
         onAntragEinlesenOcr={async () => {
-          const daten = await leseMitgliedsantragPdfFelder();
+          const daten = await leseMitgliedsantragUndSepaPdfFelder();
 
           if (!daten) return;
 
-          const [nachnameTeil = "", vornameTeil = ""] = daten.nameVorname
+          const antrag = daten.mitgliedsantrag;
+          const sepa = daten.sepa;
+
+          const [nachnameTeil = "", vornameTeil = ""] = antrag.nameVorname
             .split(",")
             .map((teil) => teil.trim());
 
-          const [plzTeil = "", ...ortTeile] = daten.plzWohnort.split(" ");
+          const [plzTeil = "", ...ortTeile] = antrag.plzWohnort.split(" ");
 
           if (!baseFolder) {
             alert("Bitte zuerst einen Basisordner wählen.");
@@ -171,11 +196,11 @@ export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
           const mitgliedsnummer =
             formular.mitgliedsnummer || naechsteMitgliedsnummer(mitglieder);
 
-          const gespeicherterPfad = await invoke<string>(
+          const gespeicherterAntragPfad = await invoke<string>(
             "mitglied_anhang_in_basisordner_kopieren",
             {
               baseFolder,
-              quellPfad: daten.pfad,
+              quellPfad: antrag.pfad,
               nachname: neuerNachname,
               vorname: neuerVorname,
               typ: "mitgliedsantrag",
@@ -183,28 +208,63 @@ export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
             }
           );
 
+          const neueAnhaenge = [
+            ...formular.anhaenge.filter(
+              (anhang) => anhang.typ !== "mitgliedsantrag" && anhang.typ !== "sepa"
+            ),
+            {
+              id: crypto.randomUUID(),
+              dateiname: gespeicherterAntragPfad.split(/[\\/]/).pop() || "mitgliedsantrag.pdf",
+              pfad: gespeicherterAntragPfad,
+              typ: "mitgliedsantrag" as const,
+              hochgeladenAm: new Date().toISOString(),
+            },
+          ];
+
+          if (sepa) {
+            const gespeicherterSepaPfad = await invoke<string>(
+              "mitglied_anhang_in_basisordner_kopieren",
+              {
+                baseFolder,
+                quellPfad: sepa.pfad,
+                nachname: neuerNachname,
+                vorname: neuerVorname,
+                typ: "sepa",
+                mitgliedsnummer,
+              }
+            );
+
+            neueAnhaenge.push({
+              id: crypto.randomUUID(),
+              dateiname: gespeicherterSepaPfad.split(/[\\/]/).pop() || "sepa-mandat.pdf",
+              pfad: gespeicherterSepaPfad,
+              typ: "sepa",
+              hochgeladenAm: new Date().toISOString(),
+            });
+          }
+
           setFormular({
             ...formular,
             mitgliedsnummer,
             status: "aktiv",
             nachname: neuerNachname,
             vorname: neuerVorname,
-            geburtsdatum: daten.geburtsdatum || formular.geburtsdatum,
-            strasse: daten.strasse || formular.strasse,
+            geburtsdatum: antrag.geburtsdatum || formular.geburtsdatum,
+            strasse: antrag.strasse || formular.strasse,
             plz: plzTeil || formular.plz,
             wohnort: ortTeile.join(" ") || formular.wohnort,
-            telefon: daten.telefon || formular.telefon,
-            email: daten.email || formular.email,
-            anhaenge: [
-              ...formular.anhaenge.filter((anhang) => anhang.typ !== "mitgliedsantrag"),
-              {
-                id: crypto.randomUUID(),
-                dateiname: "mitgliedsantrag.pdf",
-                pfad: gespeicherterPfad,
-                typ: "mitgliedsantrag",
-                hochgeladenAm: new Date().toISOString(),
-              },
-            ],
+            telefon: antrag.telefon || formular.telefon,
+            email: antrag.email || formular.email,
+            sepa: {
+              ...formular.sepa,
+              mandatsreferenz:
+                sepa?.mandatsreferenz || formular.sepa.mandatsreferenz || mitgliedsnummer,
+              kontoinhaber: sepa?.kontoinhaber || formular.sepa.kontoinhaber,
+              iban: sepa?.iban || formular.sepa.iban,
+              bic: sepa?.bic || formular.sepa.bic,
+              kreditinstitut: sepa?.kreditinstitut || formular.sepa.kreditinstitut,
+            },
+            anhaenge: neueAnhaenge,
           });
         }}
       />

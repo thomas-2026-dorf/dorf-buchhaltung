@@ -255,10 +255,10 @@ export default function MitgliedFormular({
           Mitglied speichern
         </button>
         <button type="button" onClick={onMitgliedsantrag}>
-          Mitgliedsantrag erstellen
+          Mitgliedsantrag + SEPA erstellen
         </button>
         <button type="button" onClick={onAntragEinlesenOcr}>
-          Antrag einlesen (OCR)
+          Antrag + SEPA einlesen
         </button>
         <button type="button" onClick={onZuruecksetzen}>
           Formular leeren

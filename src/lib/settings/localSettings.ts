@@ -1,11 +1,13 @@
 export type LocalSettings = {
     baseFolder: string;
+    glaeubigerId: string;
 };
 
 const KEY = "local-settings-v1";
 
 const DEFAULT_LOCAL_SETTINGS: LocalSettings = {
     baseFolder: "",
+    glaeubigerId: "",
 };
 
 export function ladeLocalSettings(): LocalSettings {

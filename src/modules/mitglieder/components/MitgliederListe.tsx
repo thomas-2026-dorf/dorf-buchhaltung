@@ -26,100 +26,137 @@ export default function MitgliederListe({
         <p style={{ margin: 0, color: "#6b7280" }}>Noch keine Mitglieder gespeichert.</p>
       ) : (
         <div style={{ display: "grid", gap: 12 }}>
-          {mitglieder.map((mitglied) => (
-            <div
-              key={mitglied.id}
-              style={{
-                border: "1px solid #e5e7eb",
-                borderRadius: 10,
-                padding: 12,
-                background: "#f9fafb",
-              }}
-            >
+          {mitglieder.map((mitglied) => {
+            const hatMitgliedsantrag = mitglied.anhaenge?.some(
+              (a) => a.typ === "mitgliedsantrag"
+            );
+
+            return (
               <div
+                key={mitglied.id}
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 12,
-                  flexWrap: "wrap",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: 10,
+                  padding: 12,
+                  background: "#f9fafb",
                 }}
               >
-                <div>
-                  <div style={{ fontWeight: 700 }}>
-                    {mitglied.vorname} {mitglied.nachname}
-                  </div>
-                  <div style={{ marginTop: 4, fontSize: 13, color: "#6b7280" }}>
-                    Mitgliedsnummer: {mitglied.mitgliedsnummer || "-"}
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <button type="button" onClick={() => onEdit(mitglied)}>
-                    Bearbeiten
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (confirm("Mitglied wirklich löschen?")) {
-                        onDelete(mitglied.id);
-                      }
-                    }}
-                  >
-                    Löschen
-                  </button>
-                </div>
-              </div>
-
-              <div style={{ marginTop: 6, color: "#374151" }}>
-                Status: {mitglied.status} | Art: {mitglied.mitgliedsart} | Aufnahme:{" "}
-                {mitglied.aufnahmeart}
-              </div>
-
-              <div style={{ marginTop: 6, color: "#374151" }}>
-                Ort: {mitglied.plz} {mitglied.wohnort}
-              </div>
-
-              <div style={{ marginTop: 6, color: "#374151" }}>
-                E-Mail: {mitglied.email || "-"} | Telefon: {mitglied.telefon || "-"}
-              </div>
-
-              {mitglied.familienmitglieder.length > 0 && (
                 <div
                   style={{
-                    marginTop: 10,
-                    padding: 10,
-                    borderRadius: 8,
-                    background: "#ffffff",
-                    border: "1px solid #e5e7eb",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 12,
+                    flexWrap: "wrap",
                   }}
                 >
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>
-                    Familienmitglieder: {mitglied.familienmitglieder.length}
+                  <div>
+                    <div style={{ fontWeight: 700 }}>
+                      {mitglied.vorname} {mitglied.nachname}
+                    </div>
+                    <div style={{ marginTop: 4, fontSize: 13, color: "#6b7280" }}>
+                      Mitgliedsnummer: {mitglied.mitgliedsnummer || "-"}
+                    </div>
                   </div>
 
-                  <div style={{ display: "grid", gap: 6 }}>
-                    {mitglied.familienmitglieder.map((familienmitglied) => (
-                      <div
-                        key={familienmitglied.id}
-                        style={{
-                          fontSize: 14,
-                          color: "#374151",
-                        }}
-                      >
-                        {familienmitglied.mitgliedsnummer || "-"} |{" "}
-                        {familienmitglied.vorname} {familienmitglied.nachname}
-                        {familienmitglied.geburtsdatum
-                          ? ` | ${familienmitglied.geburtsdatum}`
-                          : ""}
-                      </div>
-                    ))}
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button type="button" onClick={() => onEdit(mitglied)}>
+                      Bearbeiten
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm("Mitglied wirklich löschen?")) {
+                          onDelete(mitglied.id);
+                        }
+                      }}
+                    >
+                      Löschen
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
-          ))}
+
+                <div style={{ marginTop: 6, color: "#374151" }}>
+                  Status: {mitglied.status} | Art: {mitglied.mitgliedsart} | Aufnahme:{" "}
+                  {mitglied.aufnahmeart}
+                </div>
+
+                <div style={{ marginTop: 6, color: "#374151" }}>
+                  Ort: {mitglied.plz} {mitglied.wohnort}
+                </div>
+
+                <div style={{ marginTop: 6, color: "#374151" }}>
+                  E-Mail: {mitglied.email || "-"} | Telefon: {mitglied.telefon || "-"}
+                </div>
+
+                {/* 🔹 NEU: Anzeige Mitgliedsantrag */}
+                <div style={{ marginTop: 8 }}>
+                  {hatMitgliedsantrag ? (
+                    <span
+                      style={{
+                        background: "#dcfce7",
+                        color: "#166534",
+                        padding: "4px 8px",
+                        borderRadius: 6,
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
+                    >
+                      Mitgliedsantrag vorhanden
+                    </span>
+                  ) : (
+                    <span
+                      style={{
+                        background: "#fee2e2",
+                        color: "#991b1b",
+                        padding: "4px 8px",
+                        borderRadius: 6,
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
+                    >
+                      Kein Mitgliedsantrag
+                    </span>
+                  )}
+                </div>
+
+                {mitglied.familienmitglieder.length > 0 && (
+                  <div
+                    style={{
+                      marginTop: 10,
+                      padding: 10,
+                      borderRadius: 8,
+                      background: "#ffffff",
+                      border: "1px solid #e5e7eb",
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, marginBottom: 6 }}>
+                      Familienmitglieder: {mitglied.familienmitglieder.length}
+                    </div>
+
+                    <div style={{ display: "grid", gap: 6 }}>
+                      {mitglied.familienmitglieder.map((familienmitglied) => (
+                        <div
+                          key={familienmitglied.id}
+                          style={{
+                            fontSize: 14,
+                            color: "#374151",
+                          }}
+                        >
+                          {familienmitglied.mitgliedsnummer || "-"} |{" "}
+                          {familienmitglied.vorname} {familienmitglied.nachname}
+                          {familienmitglied.geburtsdatum
+                            ? ` | ${familienmitglied.geburtsdatum}`
+                            : ""}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

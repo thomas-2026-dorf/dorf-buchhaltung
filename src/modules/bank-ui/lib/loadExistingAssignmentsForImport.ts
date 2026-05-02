@@ -5,6 +5,11 @@ import type { SlimAssignmentMap } from "../types/bankSlimTypes"
 type RawLoadedAssignment = {
     belegId?: string
     bemerkung?: string
+    kundennr?: string
+    mitgliedId?: string
+    mitgliedName?: string
+    fewo?: string
+    istAnzahlung?: boolean
     belegFehlt?: boolean
     splitAssignments?: Array<{ belegId: string; betrag?: string }>
 }
@@ -17,6 +22,11 @@ function normalizeAssignments(
             .filter(([, value]) =>
                 !!value?.belegId ||
                 !!value?.bemerkung?.trim() ||
+                !!value?.kundennr?.trim() ||
+                !!value?.mitgliedId?.trim() ||
+                !!value?.mitgliedName?.trim() ||
+                !!value?.fewo?.trim() ||
+                value?.istAnzahlung === true ||
                 value?.belegFehlt === true ||
                 !!value?.splitAssignments?.length
             )
@@ -25,6 +35,11 @@ function normalizeAssignments(
                 {
                     belegId: value.belegId || "",
                     bemerkung: value.bemerkung || "",
+                    kundennr: value.kundennr || "",
+                    mitgliedId: value.mitgliedId || "",
+                    mitgliedName: value.mitgliedName || "",
+                    fewo: value.fewo || "",
+                    istAnzahlung: value.istAnzahlung === true,
                     belegFehlt: value.belegFehlt === true,
                     splitAssignments: Array.isArray(value.splitAssignments)
                         ? value.splitAssignments.filter((item) => !!item?.belegId)

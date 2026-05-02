@@ -16,8 +16,10 @@ export async function syncBeitraegeFromBank(
   const ordner = `${baseFolder}/Bank/Bearbeitet`;
   let updated = 0;
 
-  const nameMap = new Map<string, string>();
+  const nrMap = new Map<string, string>();   // mitgliedsnummer → mitgliedId
+  const nameMap = new Map<string, string>();  // vollname (lower) → mitgliedId
   for (const m of mitglieder) {
+    if (m.mitgliedsnummer) nrMap.set(m.mitgliedsnummer.toLowerCase().trim(), m.id);
     nameMap.set(`${m.vorname} ${m.nachname}`.toLowerCase().trim(), m.id);
   }
 
@@ -36,11 +38,16 @@ export async function syncBeitraegeFromBank(
         );
 
         for (const [bookingKey, assignment] of Object.entries(data.assignments)) {
-          let mitgliedId = assignment.mitgliedId?.trim() || "";
-
-          if (!mitgliedId && assignment.mitgliedName?.trim()) {
-            mitgliedId = nameMap.get(assignment.mitgliedName.toLowerCase().trim()) || "";
-          }
+          // Primär: Kd.Nr / Mitgl.Nr. → mitgliedsnummer-Lookup
+          const mitgliedId =
+            (assignment.kundennr?.trim()
+              ? nrMap.get(assignment.kundennr.toLowerCase().trim())
+              : undefined) ??
+            assignment.mitgliedId?.trim() ??
+            (assignment.mitgliedName?.trim()
+              ? nameMap.get(assignment.mitgliedName.toLowerCase().trim())
+              : undefined) ??
+            "";
 
           if (!mitgliedId) continue;
 
@@ -107,7 +114,7 @@ export async function createDummyBankJson(
       [bookingKey]: {
         belegId: "",
         bemerkung: "Dummy-Eintrag für Test",
-        kundennr: "",
+        kundennr: mitglied.mitgliedsnummer || "",
         mitgliedId: mitglied.id,
         mitgliedName: name,
         fewo: "",

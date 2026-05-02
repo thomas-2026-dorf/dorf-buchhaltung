@@ -736,11 +736,11 @@ export default function BankBookingCard({
 
                         <div>
                             <div style={{ fontSize: 13, color: "#6B7280", marginBottom: 4 }}>
-                                Kundennr.
+                                Kd.Nr / Mitgl.Nr.
                             </div>
                             <input
                                 type="text"
-                                placeholder="z. B. 172"
+                                placeholder="z. B. M-0001"
                                 value={currentAssignment.kundennr || ""}
                                 onChange={(e) => onKundennrChange(e.target.value)}
                                 style={{

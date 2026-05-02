@@ -16,12 +16,12 @@ export async function exportOffeneBeitraegeCsv(baseFolder: string): Promise<void
 
   const heute = heuteDDMMYYYY();
 
-  const header = "Buchungstag;Valuta;Betrag;Waehrung;Verwendungszweck;Auftraggeber";
+  const header = "Buchungstag;Valuta;Betrag;Waehrung;Verwendungszweck;Auftraggeber;Mitgliedsnummer";
 
   const zeilen = offene.map((b) => {
     const betrag = b.betrag.toFixed(2).replace(".", ",");
     const verwendungszweck = `Mitgliedsbeitrag ${b.mitgliedsnummer} ${b.name}`;
-    return [heute, heute, betrag, "EUR", verwendungszweck, b.name].join(";");
+    return [heute, heute, betrag, "EUR", verwendungszweck, b.name, b.mitgliedsnummer].join(";");
   });
 
   const csv = [header, ...zeilen].join("\n");

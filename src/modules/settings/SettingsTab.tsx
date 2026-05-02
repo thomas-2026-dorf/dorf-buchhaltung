@@ -12,24 +12,29 @@ import {
 import {
     ladeLocalSettings,
     setzeLocalBaseFolder,
+    getGlobalVereinsdatenDir,
 } from "../../lib/settings/localSettings";
 import { normalizeBaseFolderPath } from "../../lib/settings/pathUtils";
 import { getEinheiten } from "../../lib/settings/einheiten";
 import SettingsVereinsdatenPanel from "./components/SettingsVereinsdatenPanel";
+import SettingsCsvImportPanel from "./components/SettingsCsvImportPanel";
 import { ladeVereinsdaten, speichereVereinsdaten } from "../../lib/settings/vereinsdaten";
 import { cardStyle } from "../../design/styles";
 import { readJsonFile, writeJsonFile, ensureDir } from "../../lib/fileStorage";
+import {
+    ladeCsvFeldZuordnung,
+    speichereCsvFeldZuordnung,
+    CSV_FELD_DEFAULT,
+    type CsvFeldZuordnung,
+} from "../../lib/settings/csvFeldZuordnung";
 
 const LS_KEY_BEITRAEGE = "dorf-buchhaltung-settings-v1";
 type BeitraegeSettings = { standardBeitrag: number; familienBeitrag: number };
 const BEITRAEGE_DEFAULT: BeitraegeSettings = { standardBeitrag: 50, familienBeitrag: 30 };
 
-function beitraegeSettingsPfad(baseFolder: string): string {
-    return `${baseFolder}/vereinsdaten/beitraege-einstellungen.json`;
-}
-
-async function ladeBeitraegeSettings(baseFolder: string): Promise<BeitraegeSettings> {
-    if (!baseFolder) {
+async function ladeBeitraegeSettings(): Promise<BeitraegeSettings> {
+    const dir = getGlobalVereinsdatenDir();
+    if (!dir) {
         try {
             const raw = localStorage.getItem(LS_KEY_BEITRAEGE);
             return raw ? { ...BEITRAEGE_DEFAULT, ...JSON.parse(raw) } : { ...BEITRAEGE_DEFAULT };
@@ -37,10 +42,8 @@ async function ladeBeitraegeSettings(baseFolder: string): Promise<BeitraegeSetti
     }
 
     try {
-        const dir = `${baseFolder}/vereinsdaten`;
         await ensureDir(dir);
 
-        // Migration aus localStorage
         const legacy = localStorage.getItem(LS_KEY_BEITRAEGE);
         if (legacy) {
             try {
@@ -49,14 +52,14 @@ async function ladeBeitraegeSettings(baseFolder: string): Promise<BeitraegeSetti
                     standardBeitrag: typeof parsed.standardBeitrag === "number" ? parsed.standardBeitrag : 50,
                     familienBeitrag: typeof parsed.familienBeitrag === "number" ? parsed.familienBeitrag : 30,
                 };
-                await writeJsonFile(beitraegeSettingsPfad(baseFolder), daten);
+                await writeJsonFile(`${dir}/beitraege-einstellungen.json`, daten);
                 localStorage.removeItem(LS_KEY_BEITRAEGE);
                 return daten;
             } catch { /* ignore */ }
             localStorage.removeItem(LS_KEY_BEITRAEGE);
         }
 
-        return readJsonFile<BeitraegeSettings>(beitraegeSettingsPfad(baseFolder), { ...BEITRAEGE_DEFAULT });
+        return readJsonFile<BeitraegeSettings>(`${dir}/beitraege-einstellungen.json`, { ...BEITRAEGE_DEFAULT });
     } catch {
         try {
             const raw = localStorage.getItem(LS_KEY_BEITRAEGE);
@@ -65,20 +68,21 @@ async function ladeBeitraegeSettings(baseFolder: string): Promise<BeitraegeSetti
     }
 }
 
-async function speichereBeitraegeSettings(baseFolder: string, settings: BeitraegeSettings): Promise<void> {
-    if (!baseFolder) {
+async function speichereBeitraegeSettings(settings: BeitraegeSettings): Promise<void> {
+    const dir = getGlobalVereinsdatenDir();
+    if (!dir) {
         localStorage.setItem(LS_KEY_BEITRAEGE, JSON.stringify(settings));
         return;
     }
     try {
-        await ensureDir(`${baseFolder}/vereinsdaten`);
-        await writeJsonFile(beitraegeSettingsPfad(baseFolder), settings);
+        await ensureDir(dir);
+        await writeJsonFile(`${dir}/beitraege-einstellungen.json`, settings);
     } catch {
         localStorage.setItem(LS_KEY_BEITRAEGE, JSON.stringify(settings));
     }
 }
 
-type SettingsSection = "lokal" | "vereinsdaten" | "einheiten" | "datev" | "bank" | "mitgliedsbeitrag";
+type SettingsSection = "lokal" | "vereinsdaten" | "einheiten" | "datev" | "bank" | "mitgliedsbeitrag" | "csv-import";
 
 const sectionButtonStyle = (active: boolean) => ({
     padding: "10px 14px",
@@ -112,16 +116,18 @@ export default function SettingsTab({
     });
     const [standardBeitrag, setStandardBeitrag] = useState(50);
     const [familienBeitrag, setFamilienBeitrag] = useState(30);
+    const [csvZuordnung, setCsvZuordnung] = useState<CsvFeldZuordnung>({ ...CSV_FELD_DEFAULT });
     const [status, setStatus] = useState("");
     const [testAktiv, setTestAktiv] = useState(false);
     const [activeSection, setActiveSection] = useState<SettingsSection>("lokal");
 
     useEffect(() => {
         ladeVereinsdaten().then(setVereinsdaten);
-        ladeBeitraegeSettings(localSettings.baseFolder).then((s) => {
+        ladeBeitraegeSettings().then((s) => {
             setStandardBeitrag(s.standardBeitrag);
             setFamilienBeitrag(s.familienBeitrag);
         });
+        ladeCsvFeldZuordnung().then(setCsvZuordnung);
     }, []);
 
     useEffect(() => {
@@ -439,6 +445,14 @@ export default function SettingsTab({
                 >
                     Mitgliedsbeitrag
                 </button>
+
+                <button
+                    type="button"
+                    onClick={() => setActiveSection("csv-import")}
+                    style={sectionButtonStyle(activeSection === "csv-import")}
+                >
+                    CSV-Import
+                </button>
             </div>
 
             {status ? (
@@ -516,7 +530,7 @@ export default function SettingsTab({
                                 onChange={async (e) => {
                                     const wert = Number(e.target.value);
                                     setStandardBeitrag(wert);
-                                    await speichereBeitraegeSettings(localSettings.baseFolder, { standardBeitrag: wert, familienBeitrag });
+                                    await speichereBeitraegeSettings({ standardBeitrag: wert, familienBeitrag });
                                     setStatus("Mitgliedsbeitrag gespeichert.");
                                 }}
                                 style={{
@@ -538,7 +552,7 @@ export default function SettingsTab({
                                 onChange={async (e) => {
                                     const wert = Number(e.target.value);
                                     setFamilienBeitrag(wert);
-                                    await speichereBeitraegeSettings(localSettings.baseFolder, { standardBeitrag, familienBeitrag: wert });
+                                    await speichereBeitraegeSettings({ standardBeitrag, familienBeitrag: wert });
                                     setStatus("Mitgliedsbeitrag gespeichert.");
                                 }}
                                 style={{
@@ -569,6 +583,17 @@ export default function SettingsTab({
                     onSpeichernBankkonten={handleSpeichernBankkonten}
                     onBankkontoChange={handleBankkontoChange}
                     onBankkontoLoeschen={handleBankkontoLoeschen}
+                />
+            )}
+
+            {activeSection === "csv-import" && (
+                <SettingsCsvImportPanel
+                    zuordnung={csvZuordnung}
+                    onSpeichern={async (z) => {
+                        await speichereCsvFeldZuordnung(z);
+                        setCsvZuordnung(z);
+                        setStatus("CSV-Feldzuordnung gespeichert.");
+                    }}
                 />
             )}
         </div>

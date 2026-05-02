@@ -8,6 +8,7 @@ export type BankBooking = {
     datum: string
     betrag: number
     verwendungszweck?: string
+    mitgliedsnummer?: string
 }
 
 // Schlanke Zuordnung: Beleg + optionale Bemerkung

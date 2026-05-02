@@ -1,5 +1,5 @@
 import { readJsonFile, writeJsonFile, ensureDir } from "../fileStorage";
-import { ladeLocalSettings } from "./localSettings";
+import { getGlobalVereinsdatenDir } from "./localSettings";
 
 export type Vereinsdaten = {
   name: string;
@@ -24,8 +24,7 @@ const DEFAULT: Vereinsdaten = {
 };
 
 function vereinsdatenDir(): string | null {
-  const { baseFolder } = ladeLocalSettings();
-  return baseFolder ? `${baseFolder}/vereinsdaten` : null;
+  return getGlobalVereinsdatenDir();
 }
 
 function ausLocalStorage(): Vereinsdaten {

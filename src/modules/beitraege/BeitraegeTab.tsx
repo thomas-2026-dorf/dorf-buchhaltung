@@ -8,7 +8,8 @@ import { createBeitrag } from "./createBeitrag";
 import { syncBeitraegeFromBank, createDummyBankJson } from "./syncBeitraegeFromBank";
 import { colors } from "../../design/colors";
 import { readJsonFile, ensureDir } from "../../lib/fileStorage";
-import { ladeLocalSettings } from "../../lib/settings/localSettings";
+import { ladeLocalSettings, getGlobalVereinsdatenDir } from "../../lib/settings/localSettings";
+import { readDir, remove } from "@tauri-apps/plugin-fs";
 
 const AKTUELLES_JAHR = new Date().getFullYear();
 
@@ -17,10 +18,10 @@ type BeitraegeEinstellungen = { standardBeitrag: number; familienBeitrag: number
 const LS_KEY_EINSTELLUNGEN = "dorf-buchhaltung-settings-v1";
 
 async function ladeEinstellungen(): Promise<BeitraegeEinstellungen> {
-  const { baseFolder } = ladeLocalSettings();
   const fallback: BeitraegeEinstellungen = { standardBeitrag: 50, familienBeitrag: 30 };
+  const dir = getGlobalVereinsdatenDir();
 
-  if (!baseFolder) {
+  if (!dir) {
     try {
       const raw = localStorage.getItem(LS_KEY_EINSTELLUNGEN);
       return raw ? { ...fallback, ...JSON.parse(raw) } : fallback;
@@ -28,7 +29,6 @@ async function ladeEinstellungen(): Promise<BeitraegeEinstellungen> {
   }
 
   try {
-    const dir = `${baseFolder}/vereinsdaten`;
     await ensureDir(dir);
     return readJsonFile<BeitraegeEinstellungen>(`${dir}/beitraege-einstellungen.json`, fallback);
   } catch {
@@ -207,6 +207,21 @@ export default function BeitraegeTab() {
     await handleBankSync();
   }
 
+  async function handleDummyLoeschen() {
+    const { baseFolder } = ladeLocalSettings();
+    if (!baseFolder) return;
+    const ordner = `${baseFolder}/Bank/Bearbeitet`;
+    try {
+      const files = await readDir(ordner);
+      for (const file of files) {
+        if (file.name?.includes("dummy")) {
+          await remove(`${ordner}/${file.name}`);
+        }
+      }
+    } catch { /* Ordner existiert nicht */ }
+    await handleBankSync();
+  }
+
   return (
     <div className="space-y-6">
 
@@ -243,7 +258,17 @@ export default function BeitraegeTab() {
             border: `1px solid ${colors.border}`, background: colors.card,
           }}
         >
-          Dummy Bank-Eintrag erstellen
+          Dummy erstellen
+        </button>
+        <button
+          onClick={handleDummyLoeschen}
+          disabled={!ladeLocalSettings().baseFolder}
+          style={{
+            padding: "6px 14px", fontSize: 13, borderRadius: 6, cursor: "pointer",
+            border: `1px solid #fca5a5`, background: "#fef2f2", color: "#b91c1c",
+          }}
+        >
+          Dummy löschen
         </button>
       </div>
 

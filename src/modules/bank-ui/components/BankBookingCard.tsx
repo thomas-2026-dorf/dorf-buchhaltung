@@ -11,6 +11,12 @@ function extractNameFromVerwendungszweck(verwendungszweck?: string) {
 }
 
 
+function extractMitgliedsnrFromVerwendungszweck(verwendungszweck?: string): string {
+    if (!verwendungszweck) return ""
+    const match = verwendungszweck.match(/\bM-\d{4,}\b/i)
+    return match ? match[0].toUpperCase() : ""
+}
+
 function extractRechnungsnrFromVerwendungszweck(verwendungszweck?: string) {
     if (!verwendungszweck) return ""
 
@@ -100,8 +106,6 @@ export default function BankBookingCard({
     onRemarkChange,
     onKundennrChange,
     onMitgliedNameChange,
-    onAnzahlungChange,
-    onBelegFehltChange,
     onRemoveSplitBeleg,
     onAddSplitBeleg,
     onSaveAssignments,
@@ -133,6 +137,7 @@ export default function BankBookingCard({
 
     const quickSearchName = extractNameFromVerwendungszweck(booking.verwendungszweck)
     const quickSearchRechnungsnr = extractRechnungsnrFromVerwendungszweck(booking.verwendungszweck)
+    const quickSearchMitgliedsnr = extractMitgliedsnrFromVerwendungszweck(booking.verwendungszweck)
 
     useEffect(() => {
         if (!isOpen) return
@@ -149,30 +154,26 @@ export default function BankBookingCard({
         onMitgliedNameChange,
     ])
 
+    useEffect(() => {
+        if (!isOpen) return
+        if (currentAssignment.kundennr?.trim()) return
+        if (!quickSearchMitgliedsnr) return
+        if (!isLikelyMitgliedszahlung(booking.verwendungszweck)) return
+
+        onKundennrChange(quickSearchMitgliedsnr)
+    }, [
+        isOpen,
+        currentAssignment.kundennr,
+        quickSearchMitgliedsnr,
+        booking.verwendungszweck,
+        onKundennrChange,
+    ])
+
     function applyQuickSearch(field: keyof BookingSearchFields, value: string) {
         if (!value.trim()) return
         onSearchFocus()
         onSearchChange(field, value)
     }
-
-    function toNumber(value?: string) {
-        const normalized = String(value || "")
-            .replace(/\./g, "")
-            .replace(",", ".")
-            .trim()
-
-        const parsed = Number(normalized)
-        return Number.isFinite(parsed) ? parsed : 0
-    }
-
-    const splitSumme = splitAssignments.reduce((sum, item) => {
-        const splitBeleg = belege.find((entry) => entry.id === item.belegId)
-        const wert = item.betrag || splitBeleg?.betrag || ""
-        return sum + toNumber(wert)
-    }, 0)
-
-    const hauptbelegSumme = currentBeleg ? toNumber(currentBeleg.betrag) : 0
-    const zuordnungssumme = hauptbelegSumme + splitSumme
 
     const amountSearchValue = Math.abs(booking.betrag)
         .toFixed(2)
@@ -829,49 +830,6 @@ export default function BankBookingCard({
 
                     <div
                         style={{
-                            display: "grid",
-                            gridTemplateColumns: "minmax(180px, 220px) minmax(180px, 220px)",
-                            gap: 12,
-                            alignItems: "center",
-                        }}
-                    >
-                        <label
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 8,
-                            }}
-                        >
-                            <input
-                                type="checkbox"
-                                checked={!!currentAssignment.istAnzahlung}
-                                onChange={(e) => onAnzahlungChange(e.target.checked)}
-                            />
-                            <span style={{ fontSize: 14, color: "#334155" }}>
-                                Als Anzahlung markieren
-                            </span>
-                        </label>
-
-                        <label
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 8,
-                            }}
-                        >
-                            <input
-                                type="checkbox"
-                                checked={!!currentAssignment.belegFehlt}
-                                onChange={(e) => onBelegFehltChange(e.target.checked)}
-                            />
-                            <span style={{ fontSize: 14, color: "#92400E" }}>
-                                Beleg fehlt
-                            </span>
-                        </label>
-                    </div>
-
-                    <div
-                        style={{
                             padding: "10px 12px",
                             borderRadius: 8,
                             background: "#F8FAFC",
@@ -882,8 +840,6 @@ export default function BankBookingCard({
                             flexWrap: "wrap",
                         }}
                     >
-                        <span>Ausgewählte Summe: {zuordnungssumme.toFixed(2)} €</span>
-                        <span>Bankbetrag: {booking.betrag.toFixed(2)} €</span>
                         <span>Mitglied: {currentAssignment.mitgliedName || "-"}</span>
                         <span>Konto: {view.konto || "-"}</span>
                         <span>Lieferant: {view.lieferant || "-"}</span>

@@ -38,20 +38,30 @@ export async function syncBeitraegeFromBank(
         );
 
         for (const [bookingKey, assignment] of Object.entries(data.assignments)) {
-          // Primär: Kd.Nr / Mitgl.Nr. → mitgliedsnummer-Lookup
+          const booking = data.bookings.find((b) => b.bookingKey === bookingKey);
+
+          // M-XXXX direkt aus Verwendungszweck extrahieren als letzter Fallback
+          const nrAusVerwendung = (() => {
+            const m = booking?.verwendungszweck?.match(/\bM-\d{4,}\b/i);
+            return m ? m[0].toUpperCase() : "";
+          })();
+
+          // Reihenfolge: kundennr → mitgliedsnummer aus Buchung → mitgliedId → Name → Verwendungszweck
           const mitgliedId =
             (assignment.kundennr?.trim()
               ? nrMap.get(assignment.kundennr.toLowerCase().trim())
+              : undefined) ??
+            (booking?.mitgliedsnummer?.trim()
+              ? nrMap.get(booking.mitgliedsnummer.toLowerCase().trim())
               : undefined) ??
             assignment.mitgliedId?.trim() ??
             (assignment.mitgliedName?.trim()
               ? nameMap.get(assignment.mitgliedName.toLowerCase().trim())
               : undefined) ??
+            (nrAusVerwendung ? nrMap.get(nrAusVerwendung.toLowerCase()) : undefined) ??
             "";
 
           if (!mitgliedId) continue;
-
-          const booking = data.bookings.find((b) => b.bookingKey === bookingKey);
           if (!booking?.datum) continue;
 
           const jahr = parseInt(booking.datum.slice(0, 4));

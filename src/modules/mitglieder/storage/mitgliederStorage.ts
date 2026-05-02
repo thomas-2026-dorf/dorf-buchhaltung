@@ -1,10 +1,15 @@
 import { readJsonFile, writeJsonFile, ensureDir } from "../../../lib/fileStorage";
-import { ladeLocalSettings } from "../../../lib/settings/localSettings";
+import { ladeLocalSettings, getGlobalVereinsdatenDir } from "../../../lib/settings/localSettings";
 import type { Mitglied } from "../types/mitglieder";
 
 const LS_KEY = "dorfbuchhaltung-mitglieder-v1";
 
 function vereinsdatenDir(): string | null {
+  return getGlobalVereinsdatenDir();
+}
+
+// Altes Jahr-spezifisches Verzeichnis für Migration
+function altesVereinsdatenDir(): string | null {
   const { baseFolder } = ladeLocalSettings();
   return baseFolder ? `${baseFolder}/vereinsdaten` : null;
 }
@@ -28,7 +33,7 @@ export async function ladeMitglieder(): Promise<Mitglied[]> {
     await ensureDir(dir);
     const filePath = `${dir}/mitglieder.json`;
 
-    // Migration: nur löschen wenn Datei-Schreiben erfolgreich war
+    // Migration aus localStorage
     const legacyRaw = localStorage.getItem(LS_KEY);
     if (legacyRaw) {
       try {
@@ -39,12 +44,27 @@ export async function ladeMitglieder(): Promise<Mitglied[]> {
         localStorage.removeItem(LS_KEY);
         return Array.isArray(daten) ? daten : [];
       } catch {
-        // Schreiben fehlgeschlagen → localStorage nicht löschen
         return ausLocalStorage();
       }
     }
 
-    return readJsonFile<Mitglied[]>(filePath, []);
+    const daten = await readJsonFile<Mitglied[]>(filePath, []);
+
+    // Migration aus altem Jahr-Ordner, falls neue Datei leer
+    if (daten.length === 0) {
+      const altDir = altesVereinsdatenDir();
+      if (altDir && altDir !== dir) {
+        try {
+          const altDaten = await readJsonFile<Mitglied[]>(`${altDir}/mitglieder.json`, []);
+          if (altDaten.length > 0) {
+            await writeJsonFile(filePath, altDaten);
+            return altDaten;
+          }
+        } catch { /* kein alter Ordner vorhanden */ }
+      }
+    }
+
+    return daten;
   } catch (err) {
     console.error("Fehler beim Laden der Mitglieder:", err);
     return ausLocalStorage();

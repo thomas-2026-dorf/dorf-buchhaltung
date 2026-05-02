@@ -34,6 +34,16 @@ export function setzeLocalBaseFolder(baseFolder: string) {
     });
 }
 
+// Gibt den jahresübergreifenden vereinsdaten-Ordner zurück (eine Ebene über baseFolder)
+export function getGlobalVereinsdatenDir(): string | null {
+    const { baseFolder } = ladeLocalSettings();
+    if (!baseFolder) return null;
+    const clean = baseFolder.replace(/\/$/, "");
+    const slash = clean.lastIndexOf("/");
+    if (slash <= 0) return null;
+    return `${clean.slice(0, slash)}/vereinsdaten`;
+}
+
 export type LieferantDatevKontoRegel = {
     lieferant: string;
     konto: string;

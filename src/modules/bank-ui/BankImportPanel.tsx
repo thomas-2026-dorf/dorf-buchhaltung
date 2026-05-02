@@ -22,6 +22,7 @@ import { applySearchValueChange } from "./lib/applySearchValueChange"
 import { prepareImportData } from "./lib/prepareImportData"
 import BankBookingCard from "./components/BankBookingCard"
 import { prepareImportedBookings } from "./lib/prepareImportedBookings"
+import { ladeCsvFeldZuordnung, type CsvFeldZuordnung } from "../../lib/settings/csvFeldZuordnung"
 import { ladeBelegeAusJahresdatei } from "../../lib/belege"
 import { loadAllBankJsons } from "./loadAllBankJsons"
 
@@ -120,6 +121,11 @@ export default function BankImportPanel({
     const [csvFiles, setCsvFiles] = useState<CsvListItem[]>([])
     const [loadingCsvFiles, setLoadingCsvFiles] = useState(false)
     const [csvFilesError, setCsvFilesError] = useState("")
+    const [csvZuordnung, setCsvZuordnung] = useState<CsvFeldZuordnung | undefined>(undefined)
+
+    useEffect(() => {
+        ladeCsvFeldZuordnung().then(setCsvZuordnung)
+    }, [])
 
     useEffect(() => {
         async function loadBelege() {
@@ -161,10 +167,16 @@ export default function BankImportPanel({
         setCsvFilesError("")
 
         try {
+            // Elternordner (eine Ebene über baseFolder) für globalen Bank-Ordner
+            const parentFolder = baseFolder.replace(/\/[^/]+\/?$/, "")
+
             const candidateFolders = [
                 `${baseFolder}/Bank`,
+                `${baseFolder}/Bank/Unbearbeitet`,
+                `${baseFolder}/Bank/Eingang`,
                 `${baseFolder}/Bank/Import`,
                 `${baseFolder}/Bank/Bearbeitet`,
+                `${parentFolder}/Bank`,
             ]
 
             const csvMap = new Map<string, CsvListItem>()
@@ -259,7 +271,7 @@ export default function BankImportPanel({
             return
         }
 
-        const { nextBookingsAlt, nextBookings } = prepareImportedBookings(text)
+        const { nextBookingsAlt, nextBookings } = prepareImportedBookings(text, csvZuordnung)
         const originalBelege = await ladeBelegeAusJahresdatei(baseFolder, year)
         const { importId, geladeneAssignments } =
             await prepareImportSession(baseFolder, year, fileName)

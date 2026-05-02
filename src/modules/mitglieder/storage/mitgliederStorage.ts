@@ -1,26 +1,68 @@
+import { readJsonFile, writeJsonFile, ensureDir } from "../../../lib/fileStorage";
+import { ladeLocalSettings } from "../../../lib/settings/localSettings";
 import type { Mitglied } from "../types/mitglieder";
 
-const STORAGE_KEY = "dorfbuchhaltung-mitglieder-v1";
+const LS_KEY = "dorfbuchhaltung-mitglieder-v1";
 
-export function ladeMitglieder(): Mitglied[] {
+function vereinsdatenDir(): string | null {
+  const { baseFolder } = ladeLocalSettings();
+  return baseFolder ? `${baseFolder}/vereinsdaten` : null;
+}
+
+function ausLocalStorage(): Mitglied[] {
   try {
-    const roh = localStorage.getItem(STORAGE_KEY);
-    if (!roh) return [];
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? (JSON.parse(raw) as Mitglied[]) : [];
+  } catch { return []; }
+}
 
-    const daten = JSON.parse(roh);
-    if (!Array.isArray(daten)) return [];
+function inLocalStorage(mitglieder: Mitglied[]): void {
+  localStorage.setItem(LS_KEY, JSON.stringify(mitglieder));
+}
 
-    return daten as Mitglied[];
-  } catch (error) {
-    console.error("Fehler beim Laden der Mitglieder:", error);
-    return [];
+export async function ladeMitglieder(): Promise<Mitglied[]> {
+  const dir = vereinsdatenDir();
+  if (!dir) return ausLocalStorage();
+
+  try {
+    await ensureDir(dir);
+    const filePath = `${dir}/mitglieder.json`;
+
+    // Migration: nur löschen wenn Datei-Schreiben erfolgreich war
+    const legacyRaw = localStorage.getItem(LS_KEY);
+    if (legacyRaw) {
+      try {
+        const daten = JSON.parse(legacyRaw) as Mitglied[];
+        if (Array.isArray(daten) && daten.length > 0) {
+          await writeJsonFile(filePath, daten);
+        }
+        localStorage.removeItem(LS_KEY);
+        return Array.isArray(daten) ? daten : [];
+      } catch {
+        // Schreiben fehlgeschlagen → localStorage nicht löschen
+        return ausLocalStorage();
+      }
+    }
+
+    return readJsonFile<Mitglied[]>(filePath, []);
+  } catch (err) {
+    console.error("Fehler beim Laden der Mitglieder:", err);
+    return ausLocalStorage();
   }
 }
 
-export function speichereMitglieder(mitglieder: Mitglied[]) {
+export async function speichereMitglieder(mitglieder: Mitglied[]): Promise<void> {
+  const dir = vereinsdatenDir();
+  if (!dir) {
+    inLocalStorage(mitglieder);
+    return;
+  }
+
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(mitglieder));
-  } catch (error) {
-    console.error("Fehler beim Speichern der Mitglieder:", error);
+    await ensureDir(dir);
+    await writeJsonFile(`${dir}/mitglieder.json`, mitglieder);
+  } catch (err) {
+    console.error("Fehler beim Speichern der Mitglieder:", err);
+    inLocalStorage(mitglieder);
   }
 }

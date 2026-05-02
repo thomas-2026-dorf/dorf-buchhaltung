@@ -9,7 +9,10 @@ export function isKnownTabValue(activeTab: Tab): boolean {
     activeTab === "Bank" ||
     activeTab === "Ausgang" ||
     activeTab === "Einstellungen" ||
-    activeTab === "Korrektur"
+    activeTab === "Korrektur" ||
+    activeTab === "Beiträge" ||
+    activeTab === "Kassen" ||
+    activeTab === "Mitglieder"
   );
 }
 

@@ -43,7 +43,7 @@ export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
   const [bearbeiteId, setBearbeiteId] = useState<string | null>(null);
 
   useEffect(() => {
-    setMitglieder(ladeMitglieder());
+    ladeMitglieder().then(setMitglieder);
   }, []);
 
   const anzahlAktiv = useMemo(
@@ -61,10 +61,10 @@ export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
     setBearbeiteId(null);
   };
 
-  const loeschen = (id: string) => {
+  const loeschen = async (id: string) => {
     const neueListe = mitglieder.filter((m) => m.id !== id);
     setMitglieder(neueListe);
-    speichereMitglieder(neueListe);
+    await speichereMitglieder(neueListe);
 
     if (bearbeiteId === id) {
       formularZuruecksetzen();
@@ -81,7 +81,7 @@ export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const speichern = () => {
+  const speichern = async () => {
     if (!formular.vorname.trim() || !formular.nachname.trim()) {
       alert("Bitte mindestens Vorname und Nachname ausfüllen.");
       return;
@@ -112,7 +112,7 @@ export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
         );
 
     setMitglieder(neueListe);
-    speichereMitglieder(neueListe);
+    await speichereMitglieder(neueListe);
     formularZuruecksetzen();
   };
 
@@ -165,7 +165,7 @@ export default function MitgliederTab({ baseFolder }: MitgliederTabProps) {
 
           setFormular(formularMitNummer);
 
-          const vereinsdaten = ladeVereinsdaten();
+          const vereinsdaten = await ladeVereinsdaten();
 
           await erstelleMitgliedsantragPdf(formularMitNummer, vereinsdaten);
           await erstelleSepaMandatPdf(

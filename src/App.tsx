@@ -38,6 +38,7 @@ import { useOcr } from "./hooks/useOcr";
 import { shouldShowPlaceholderTab } from "./helpers/tabHelpers";
 import { getActiveFeWo } from "./helpers/fewoHelpers";
 import { useBereinigeVerwaisteBelegeEffect } from "./hooks/useBereinigeVerwaisteBelegeEffect";
+import BeitraegeTab from "./modules/beitraege/BeitraegeTab";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("Belege");
@@ -164,8 +165,6 @@ export default function App() {
     baseFolder,
     year,
   });
-
-
 
   async function loadPdf(filenameInput: unknown) {
     await runLoadPdf({
@@ -454,7 +453,7 @@ export default function App() {
 
             {activeTab === "Mitglieder" && <MitgliederTab baseFolder={baseFolder} />}
 
-            {activeTab === "Beiträge" && <PlaceholderTab />}
+            {activeTab === "Beiträge" && <BeitraegeTab />}
 
             {activeTab === "Kassen" && (
               <KassenTab baseFolder={baseFolder} year={year} />

@@ -17,8 +17,68 @@ import { normalizeBaseFolderPath } from "../../lib/settings/pathUtils";
 import { getEinheiten } from "../../lib/settings/einheiten";
 import SettingsVereinsdatenPanel from "./components/SettingsVereinsdatenPanel";
 import { ladeVereinsdaten, speichereVereinsdaten } from "../../lib/settings/vereinsdaten";
+import { cardStyle } from "../../design/styles";
+import { readJsonFile, writeJsonFile, ensureDir } from "../../lib/fileStorage";
 
-type SettingsSection = "lokal" | "vereinsdaten" | "einheiten" | "datev" | "bank";
+const LS_KEY_BEITRAEGE = "dorf-buchhaltung-settings-v1";
+type BeitraegeSettings = { standardBeitrag: number; familienBeitrag: number };
+const BEITRAEGE_DEFAULT: BeitraegeSettings = { standardBeitrag: 50, familienBeitrag: 30 };
+
+function beitraegeSettingsPfad(baseFolder: string): string {
+    return `${baseFolder}/vereinsdaten/beitraege-einstellungen.json`;
+}
+
+async function ladeBeitraegeSettings(baseFolder: string): Promise<BeitraegeSettings> {
+    if (!baseFolder) {
+        try {
+            const raw = localStorage.getItem(LS_KEY_BEITRAEGE);
+            return raw ? { ...BEITRAEGE_DEFAULT, ...JSON.parse(raw) } : { ...BEITRAEGE_DEFAULT };
+        } catch { return { ...BEITRAEGE_DEFAULT }; }
+    }
+
+    try {
+        const dir = `${baseFolder}/vereinsdaten`;
+        await ensureDir(dir);
+
+        // Migration aus localStorage
+        const legacy = localStorage.getItem(LS_KEY_BEITRAEGE);
+        if (legacy) {
+            try {
+                const parsed = JSON.parse(legacy);
+                const daten: BeitraegeSettings = {
+                    standardBeitrag: typeof parsed.standardBeitrag === "number" ? parsed.standardBeitrag : 50,
+                    familienBeitrag: typeof parsed.familienBeitrag === "number" ? parsed.familienBeitrag : 30,
+                };
+                await writeJsonFile(beitraegeSettingsPfad(baseFolder), daten);
+                localStorage.removeItem(LS_KEY_BEITRAEGE);
+                return daten;
+            } catch { /* ignore */ }
+            localStorage.removeItem(LS_KEY_BEITRAEGE);
+        }
+
+        return readJsonFile<BeitraegeSettings>(beitraegeSettingsPfad(baseFolder), { ...BEITRAEGE_DEFAULT });
+    } catch {
+        try {
+            const raw = localStorage.getItem(LS_KEY_BEITRAEGE);
+            return raw ? { ...BEITRAEGE_DEFAULT, ...JSON.parse(raw) } : { ...BEITRAEGE_DEFAULT };
+        } catch { return { ...BEITRAEGE_DEFAULT }; }
+    }
+}
+
+async function speichereBeitraegeSettings(baseFolder: string, settings: BeitraegeSettings): Promise<void> {
+    if (!baseFolder) {
+        localStorage.setItem(LS_KEY_BEITRAEGE, JSON.stringify(settings));
+        return;
+    }
+    try {
+        await ensureDir(`${baseFolder}/vereinsdaten`);
+        await writeJsonFile(beitraegeSettingsPfad(baseFolder), settings);
+    } catch {
+        localStorage.setItem(LS_KEY_BEITRAEGE, JSON.stringify(settings));
+    }
+}
+
+type SettingsSection = "lokal" | "vereinsdaten" | "einheiten" | "datev" | "bank" | "mitgliedsbeitrag";
 
 const sectionButtonStyle = (active: boolean) => ({
     padding: "10px 14px",
@@ -46,10 +106,23 @@ export default function SettingsTab({
         };
     });
     const [localSettings, setLocalSettings] = useState(ladeLocalSettings());
-    const [vereinsdaten, setVereinsdaten] = useState(ladeVereinsdaten());
+    const [vereinsdaten, setVereinsdaten] = useState<import("../../lib/settings/vereinsdaten").Vereinsdaten>({
+        name: "", strasse: "", plz: "", ort: "", telefon: "", email: "",
+        iban: "", bic: "", kreditinstitut: "", glaeubigerId: "", logoPfad: "",
+    });
+    const [standardBeitrag, setStandardBeitrag] = useState(50);
+    const [familienBeitrag, setFamilienBeitrag] = useState(30);
     const [status, setStatus] = useState("");
     const [testAktiv, setTestAktiv] = useState(false);
     const [activeSection, setActiveSection] = useState<SettingsSection>("lokal");
+
+    useEffect(() => {
+        ladeVereinsdaten().then(setVereinsdaten);
+        ladeBeitraegeSettings(localSettings.baseFolder).then((s) => {
+            setStandardBeitrag(s.standardBeitrag);
+            setFamilienBeitrag(s.familienBeitrag);
+        });
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -358,6 +431,14 @@ export default function SettingsTab({
                 >
                     Bank
                 </button>
+
+                <button
+                    type="button"
+                    onClick={() => setActiveSection("mitgliedsbeitrag")}
+                    style={sectionButtonStyle(activeSection === "mitgliedsbeitrag")}
+                >
+                    Mitgliedsbeitrag
+                </button>
             </div>
 
             {status ? (
@@ -389,8 +470,8 @@ export default function SettingsTab({
                 <SettingsVereinsdatenPanel
                     vereinsdaten={vereinsdaten}
                     baseFolder={localSettings.baseFolder}
-                    onChange={(neueVereinsdaten) => {
-                        speichereVereinsdaten(neueVereinsdaten);
+                    onChange={async (neueVereinsdaten) => {
+                        await speichereVereinsdaten(neueVereinsdaten);
                         setVereinsdaten(neueVereinsdaten);
                         setStatus("Vereinsdaten gespeichert.");
                     }}
@@ -421,6 +502,58 @@ export default function SettingsTab({
                     onBankkontoChange={() => { }}
                     onBankkontoLoeschen={() => { }}
                 />
+            )}
+
+            {activeSection === "mitgliedsbeitrag" && (
+                <div style={cardStyle}>
+                    <div style={{ fontWeight: 700, marginBottom: 12 }}>Mitgliedsbeitrag</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, maxWidth: 560 }}>
+                        <label>
+                            Standard Jahresbeitrag (€)
+                            <input
+                                type="number"
+                                value={standardBeitrag}
+                                onChange={async (e) => {
+                                    const wert = Number(e.target.value);
+                                    setStandardBeitrag(wert);
+                                    await speichereBeitraegeSettings(localSettings.baseFolder, { standardBeitrag: wert, familienBeitrag });
+                                    setStatus("Mitgliedsbeitrag gespeichert.");
+                                }}
+                                style={{
+                                    width: "100%",
+                                    padding: 10,
+                                    marginTop: 4,
+                                    border: "1px solid #d0d7de",
+                                    borderRadius: 8,
+                                    boxSizing: "border-box",
+                                    fontSize: 16,
+                                }}
+                            />
+                        </label>
+                        <label>
+                            Familienmitglied Beitrag (€)
+                            <input
+                                type="number"
+                                value={familienBeitrag}
+                                onChange={async (e) => {
+                                    const wert = Number(e.target.value);
+                                    setFamilienBeitrag(wert);
+                                    await speichereBeitraegeSettings(localSettings.baseFolder, { standardBeitrag, familienBeitrag: wert });
+                                    setStatus("Mitgliedsbeitrag gespeichert.");
+                                }}
+                                style={{
+                                    width: "100%",
+                                    padding: 10,
+                                    marginTop: 4,
+                                    border: "1px solid #d0d7de",
+                                    borderRadius: 8,
+                                    boxSizing: "border-box",
+                                    fontSize: 16,
+                                }}
+                            />
+                        </label>
+                    </div>
+                </div>
             )}
 
             {activeSection === "bank" && (
